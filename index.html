@@ -1,0 +1,1856 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acentrik Consultancy | Employee Portal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --acentrik-blue: #1a3a8f;
+            --acentrik-light: #2d55cc;
+            --acentrik-gold: #d4af37;
+            --light-bg: #f5f7ff;
+            --dark-text: #333;
+            --light-text: #666;
+            --white: #ffffff;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --radius: 8px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--light-bg);
+            color: var(--dark-text);
+            line-height: 1.6;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 250px;
+            background-color: var(--acentrik-blue);
+            color: var(--white);
+            padding: 25px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+
+        .logo-container {
+            text-align: center;
+            padding: 0 20px 30px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .logo-icon {
+            color: var(--acentrik-gold);
+            font-size: 1.8rem;
+        }
+
+        .employee-info {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .employee-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: var(--acentrik-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            font-size: 2rem;
+            border: 3px solid var(--acentrik-gold);
+        }
+
+        .employee-name {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+
+        .employee-role {
+            color: var(--acentrik-gold);
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+
+        .employee-id {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        .sidebar-menu {
+            padding: 20px 0;
+        }
+
+        .menu-item {
+            padding: 15px 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 4px solid transparent;
+        }
+
+        .menu-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-left-color: var(--acentrik-gold);
+        }
+
+        .menu-item.active {
+            background-color: rgba(255, 255, 255, 0.15);
+            border-left-color: var(--acentrik-gold);
+        }
+
+        .menu-icon {
+            width: 20px;
+            text-align: center;
+        }
+
+        .logout-container {
+            position: absolute;
+            bottom: 30px;
+            width: 100%;
+            padding: 0 25px;
+        }
+
+        .logout-btn {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .logout-btn:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background-color: var(--white);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+        }
+
+        .header-title h1 {
+            color: var(--acentrik-blue);
+            font-size: 1.8rem;
+        }
+
+        .header-title p {
+            color: var(--light-text);
+            font-size: 0.9rem;
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .search-bar {
+            position: relative;
+        }
+
+        .search-bar input {
+            padding: 10px 15px 10px 40px;
+            border: 1px solid #ddd;
+            border-radius: var(--radius);
+            width: 300px;
+            transition: all 0.3s;
+        }
+
+        .search-bar input:focus {
+            outline: none;
+            border-color: var(--acentrik-light);
+            box-shadow: 0 0 0 2px rgba(45, 85, 204, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--light-text);
+        }
+
+        .notifications {
+            position: relative;
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: var(--acentrik-blue);
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: #e74c3c;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Dashboard Content */
+        .dashboard-content {
+            display: none;
+        }
+
+        .dashboard-content.active {
+            display: block;
+        }
+
+        .welcome-banner {
+            background: linear-gradient(135deg, var(--acentrik-blue), var(--acentrik-light));
+            color: white;
+            padding: 30px;
+            border-radius: var(--radius);
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+        }
+
+        .welcome-banner h2 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background-color: var(--white);
+            border-radius: var(--radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .icon-leave {
+            background-color: #3498db;
+        }
+
+        .icon-payroll {
+            background-color: #2ecc71;
+        }
+
+        .icon-projects {
+            background-color: #9b59b6;
+        }
+
+        .icon-training {
+            background-color: #e67e22;
+        }
+
+        .stat-info h3 {
+            font-size: 2rem;
+            margin-bottom: 5px;
+            color: var(--acentrik-blue);
+        }
+
+        .stat-info p {
+            color: var(--light-text);
+            font-size: 0.9rem;
+        }
+
+        .quick-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .quick-link {
+            background-color: var(--white);
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .quick-link:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .quick-link-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: var(--light-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: var(--acentrik-blue);
+            margin-bottom: 15px;
+        }
+
+        .announcements {
+            background-color: var(--white);
+            border-radius: var(--radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+        }
+
+        .announcements h3 {
+            color: var(--acentrik-blue);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .announcement-item {
+            padding: 15px 0;
+            border-bottom: 1px solid #f5f5f5;
+        }
+
+        .announcement-item:last-child {
+            border-bottom: none;
+        }
+
+        .announcement-date {
+            font-size: 0.8rem;
+            color: var(--acentrik-gold);
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 220px;
+            }
+
+            .main-content {
+                margin-left: 220px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                padding: 15px 0;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 15px;
+            }
+
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .search-bar input {
+                width: 100%;
+            }
+
+            .stats-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .employee-info {
+                display: flex;
+                align-items: center;
+                gap: 15px;
+                text-align: left;
+            }
+
+            .employee-avatar {
+                margin: 0;
+                width: 60px;
+                height: 60px;
+                font-size: 1.5rem;
+            }
+
+            .logout-container {
+                position: relative;
+                bottom: auto;
+                margin-top: 20px;
+            }
+        }
+
+        /* Content Sections */
+        .content-section {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .section-header h2 {
+            color: var(--acentrik-blue);
+            font-size: 1.8rem;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            background-color: var(--acentrik-blue);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            background-color: var(--acentrik-light);
+        }
+
+        .btn-gold {
+            background-color: var(--acentrik-gold);
+        }
+
+        .btn-gold:hover {
+            background-color: #c19b2e;
+        }
+
+        table {
+            width: 100%;
+            background-color: var(--white);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            border-collapse: collapse;
+        }
+
+        th {
+            background-color: var(--acentrik-blue);
+            color: white;
+            padding: 15px;
+            text-align: left;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        tr:hover {
+            background-color: #f9f9f9;
+        }
+
+        .status-approved {
+            color: #2ecc71;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            color: #f39c12;
+            font-weight: 600;
+        }
+
+        .status-rejected {
+            color: #e74c3c;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark-text);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: var(--radius);
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--acentrik-light);
+            box-shadow: 0 0 0 2px rgba(45, 85, 204, 0.1);
+        }
+
+        /* Profile Section */
+        .profile-container {
+            display: flex;
+            gap: 30px;
+        }
+
+        .profile-sidebar {
+            width: 300px;
+            background-color: var(--white);
+            border-radius: var(--radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+            height: fit-content;
+        }
+
+        .profile-main {
+            flex: 1;
+            background-color: var(--white);
+            border-radius: var(--radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+        }
+
+        .profile-picture {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background-color: var(--acentrik-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: white;
+            margin: 0 auto 20px;
+            border: 5px solid var(--acentrik-gold);
+        }
+
+        @media (max-width: 1024px) {
+            .profile-container {
+                flex-direction: column;
+            }
+
+            .profile-sidebar {
+                width: 100%;
+            }
+        }
+
+        /* Company News */
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .news-card {
+            background-color: var(--white);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s;
+        }
+
+        .news-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .news-image {
+            height: 180px;
+            background-color: var(--acentrik-blue);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+        }
+
+        .news-content {
+            padding: 20px;
+        }
+
+        .news-date {
+            font-size: 0.8rem;
+            color: var(--acentrik-gold);
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .news-title {
+            font-size: 1.2rem;
+            color: var(--acentrik-blue);
+            margin-bottom: 10px;
+        }
+
+        /* Training Section */
+        .training-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .training-card {
+            background-color: var(--white);
+            border-radius: var(--radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s;
+        }
+
+        .training-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .training-category {
+            display: inline-block;
+            padding: 5px 10px;
+            background-color: var(--light-bg);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: var(--acentrik-blue);
+            margin-bottom: 15px;
+        }
+
+        .training-title {
+            font-size: 1.2rem;
+            color: var(--acentrik-blue);
+            margin-bottom: 10px;
+        }
+
+        .training-progress {
+            margin: 15px 0;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background-color: #eee;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-value {
+            height: 100%;
+            background-color: var(--acentrik-gold);
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: 50px;
+            padding: 20px;
+            text-align: center;
+            color: var(--light-text);
+            font-size: 0.9rem;
+            border-top: 1px solid #eee;
+        }
+
+        /* Toggle Button for Mobile */
+        .menu-toggle {
+            display: none;
+            font-size: 1.5rem;
+            color: var(--acentrik-blue);
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .menu-toggle {
+                display: block;
+            }
+
+            .sidebar {
+                transform: translateX(-100%);
+                position: fixed;
+                height: 100%;
+                z-index: 1000;
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar Navigation -->
+        <div class="sidebar" id="sidebar">
+            <div class="logo-container">
+                <div class="logo">
+                    <i class="fas fa-chart-network logo-icon"></i>
+                    <span>Acentrik</span>
+                </div>
+                <p>Employee Portal</p>
+            </div>
+
+            <div class="employee-info">
+                <div class="employee-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="employee-name">Alex Johnson</div>
+                <div class="employee-role">Senior Consultant</div>
+                <div class="employee-id">EMP-ACS-2023-087</div>
+            </div>
+
+            <div class="sidebar-menu">
+                <div class="menu-item active" data-target="dashboard">
+                    <div class="menu-icon"><i class="fas fa-home"></i></div>
+                    <span>Dashboard</span>
+                </div>
+                <div class="menu-item" data-target="profile">
+                    <div class="menu-icon"><i class="fas fa-user-circle"></i></div>
+                    <span>My Profile</span>
+                </div>
+                <div class="menu-item" data-target="leave">
+                    <div class="menu-icon"><i class="fas fa-calendar-alt"></i></div>
+                    <span>Leave Management</span>
+                </div>
+                <div class="menu-item" data-target="payroll">
+                    <div class="menu-icon"><i class="fas fa-money-check-alt"></i></div>
+                    <span>Payroll & Benefits</span>
+                </div>
+                <div class="menu-item" data-target="projects">
+                    <div class="menu-icon"><i class="fas fa-project-diagram"></i></div>
+                    <span>My Projects</span>
+                </div>
+                <div class="menu-item" data-target="training">
+                    <div class="menu-icon"><i class="fas fa-graduation-cap"></i></div>
+                    <span>Training & Development</span>
+                </div>
+                <div class="menu-item" data-target="documents">
+                    <div class="menu-icon"><i class="fas fa-folder"></i></div>
+                    <span>Documents</span>
+                </div>
+                <div class="menu-item" data-target="directory">
+                    <div class="menu-icon"><i class="fas fa-address-book"></i></div>
+                    <span>Employee Directory</span>
+                </div>
+                <div class="menu-item" data-target="news">
+                    <div class="menu-icon"><i class="fas fa-newspaper"></i></div>
+                    <span>Company News</span>
+                </div>
+            </div>
+
+            <div class="logout-container">
+                <div class="logout-btn" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header -->
+            <div class="header">
+                <div class="header-title">
+                    <h1 id="pageTitle">Employee Dashboard</h1>
+                    <p>Welcome to Acentrik Consultancy Services Employee Portal</p>
+                </div>
+                <div class="header-controls">
+                    <div class="menu-toggle" id="menuToggle">
+                        <i class="fas fa-bars"></i>
+                    </div>
+                    <div class="search-bar">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" placeholder="Search portal...">
+                    </div>
+                    <div class="notifications">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge">3</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Content -->
+            <div id="dashboard" class="dashboard-content active">
+                <div class="welcome-banner">
+                    <h2>Welcome back, Alex!</h2>
+                    <p>Here's what's happening at Acentrik today. You have 2 pending tasks and 1 new announcement.</p>
+                </div>
+
+                <div class="stats-cards">
+                    <div class="stat-card">
+                        <div class="stat-icon icon-leave">
+                            <i class="fas fa-calendar-day"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>12</h3>
+                            <p>Leave Days Available</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon icon-payroll">
+                            <i class="fas fa-wallet"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>15</h3>
+                            <p>Days to Next Payroll</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon icon-projects">
+                            <i class="fas fa-tasks"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>4</h3>
+                            <p>Active Projects</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon icon-training">
+                            <i class="fas fa-certificate"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>2</h3>
+                            <p>Pending Trainings</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="quick-links">
+                    <div class="quick-link" data-target="leave">
+                        <div class="quick-link-icon">
+                            <i class="fas fa-plane"></i>
+                        </div>
+                        <h4>Apply Leave</h4>
+                        <p>Submit a new leave request</p>
+                    </div>
+
+                    <div class="quick-link" data-target="documents">
+                        <div class="quick-link-icon">
+                            <i class="fas fa-file-download"></i>
+                        </div>
+                        <h4>Download Payslip</h4>
+                        <p>Latest payslip available</p>
+                    </div>
+
+                    <div class="quick-link" data-target="projects">
+                        <div class="quick-link-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h4>Project Reports</h4>
+                        <p>View project status</p>
+                    </div>
+
+                    <div class="quick-link" data-target="training">
+                        <div class="quick-link-icon">
+                            <i class="fas fa-book-open"></i>
+                        </div>
+                        <h4>Training Library</h4>
+                        <p>Access learning materials</p>
+                    </div>
+                </div>
+
+                <div class="announcements">
+                    <h3>Recent Announcements</h3>
+                    <div class="announcement-item">
+                        <div class="announcement-date">June 15, 2023</div>
+                        <h4>Annual Company Meet 2023</h4>
+                        <p>Join us for our annual company meet on July 20th at the Grand Convention Center. Registration opens next week.</p>
+                    </div>
+                    <div class="announcement-item">
+                        <div class="announcement-date">June 10, 2023</div>
+                        <h4>New Health Insurance Benefits</h4>
+                        <p>We've enhanced our health insurance coverage to include dental and vision care for all employees.</p>
+                    </div>
+                    <div class="announcement-item">
+                        <div class="announcement-date">June 5, 2023</div>
+                        <h4>Quarterly Performance Reviews</h4>
+                        <p>Q2 performance reviews will begin on June 20th. Please ensure your self-assessments are completed by June 18th.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Content -->
+            <div id="profile" class="content-section">
+                <div class="section-header">
+                    <h2>My Profile</h2>
+                    <button class="btn btn-gold" id="editProfileBtn">Edit Profile</button>
+                </div>
+
+                <div class="profile-container">
+                    <div class="profile-sidebar">
+                        <div class="profile-picture">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <h3 style="text-align: center; margin-bottom: 20px;">Alex Johnson</h3>
+                        <div style="margin-bottom: 15px;">
+                            <strong>Employee ID:</strong> EMP-ACS-2023-087
+                        </div>
+                        <div style="margin-bottom: 15px;">
+                            <strong>Department:</strong> Technology Consulting
+                        </div>
+                        <div style="margin-bottom: 15px;">
+                            <strong>Position:</strong> Senior Consultant
+                        </div>
+                        <div style="margin-bottom: 15px;">
+                            <strong>Date of Joining:</strong> March 15, 2020
+                        </div>
+                        <div style="margin-bottom: 15px;">
+                            <strong>Work Location:</strong> Mumbai HQ
+                        </div>
+                        <div style="margin-bottom: 15px;">
+                            <strong>Employment Type:</strong> Full-time
+                        </div>
+                    </div>
+
+                    <div class="profile-main">
+                        <h3 style="margin-bottom: 20px; color: var(--acentrik-blue);">Personal Information</h3>
+
+                        <div class="form-group">
+                            <label>Email Address</label>
+                            <div class="form-control">alex.johnson@acentrik.com</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Phone Number</label>
+                            <div class="form-control">+91 98765 43210</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Address</label>
+                            <div class="form-control">201, Skyline Apartments, Bandra West, Mumbai - 400050</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Emergency Contact</label>
+                            <div class="form-control">Maria Johnson (+91 98765 43211)</div>
+                        </div>
+
+                        <h3 style="margin: 30px 0 20px; color: var(--acentrik-blue);">Skills & Certifications</h3>
+
+                        <div style="margin-bottom: 15px;">
+                            <strong>Primary Skills:</strong> Cloud Architecture, DevOps, Project Management, Agile Methodologies
+                        </div>
+
+                        <div style="margin-bottom: 15px;">
+                            <strong>Certifications:</strong> AWS Solutions Architect, PMP, Scrum Master
+                        </div>
+
+                        <h3 style="margin: 30px 0 20px; color: var(--acentrik-blue);">Reporting Structure</h3>
+
+                        <div style="margin-bottom: 15px;">
+                            <strong>Line Manager:</strong> Sarah Williams (Director - Technology Consulting)
+                        </div>
+
+                        <div style="margin-bottom: 15px;">
+                            <strong>HR Manager:</strong> Robert Chen (HR Director)
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Leave Management Content -->
+            <div id="leave" class="content-section">
+                <div class="section-header">
+                    <h2>Leave Management</h2>
+                    <button class="btn" id="applyLeaveBtn">Apply for Leave</button>
+                </div>
+
+                <h3 style="margin-bottom: 20px; color: var(--acentrik-blue);">My Leave Balance</h3>
+
+                <div class="stats-cards">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background-color: #3498db;">
+                            <i class="fas fa-sun"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>12</h3>
+                            <p>Annual Leave</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background-color: #2ecc71;">
+                            <i class="fas fa-plus-circle"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>8</h3>
+                            <p>Sick Leave</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background-color: #9b59b6;">
+                            <i class="fas fa-heart"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>5</h3>
+                            <p>Personal Leave</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background-color: #e67e22;">
+                            <i class="fas fa-baby"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>15</h3>
+                            <p>Parental Leave</p>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 style="margin: 30px 0 20px; color: var(--acentrik-blue);">Recent Leave Applications</h3>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Leave Type</th>
+                            <th>From</th>
+                            <th>To</th>
+                            <th>Duration</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Annual Leave</td>
+                            <td>June 20, 2023</td>
+                            <td>June 23, 2023</td>
+                            <td>4 days</td>
+                            <td class="status-approved">Approved</td>
+                            <td><button class="btn" style="padding: 5px 10px; font-size: 0.8rem;">View</button></td>
+                        </tr>
+                        <tr>
+                            <td>Sick Leave</td>
+                            <td>June 5, 2023</td>
+                            <td>June 6, 2023</td>
+                            <td>2 days</td>
+                            <td class="status-approved">Approved</td>
+                            <td><button class="btn" style="padding: 5px 10px; font-size: 0.8rem;">View</button></td>
+                        </tr>
+                        <tr>
+                            <td>Personal Leave</td>
+                            <td>May 15, 2023</td>
+                            <td>May 16, 2023</td>
+                            <td>2 days</td>
+                            <td class="status-approved">Approved</td>
+                            <td><button class="btn" style="padding: 5px 10px; font-size: 0.8rem;">View</button></td>
+                        </tr>
+                        <tr>
+                            <td>Annual Leave</td>
+                            <td>July 10, 2023</td>
+                            <td>July 14, 2023</td>
+                            <td>5 days</td>
+                            <td class="status-pending">Pending</td>
+                            <td><button class="btn" style="padding: 5px 10px; font-size: 0.8rem;">Cancel</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Payroll Content -->
+            <div id="payroll" class="content-section">
+                <div class="section-header">
+                    <h2>Payroll & Benefits</h2>
+                    <button class="btn">Download Payslip</button>
+                </div>
+
+                <h3 style="margin-bottom: 20px; color: var(--acentrik-blue);">Salary Details - June 2023</h3>
+
+                <div class="stats-cards">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background-color: #2ecc71;">
+                            <i class="fas fa-money-bill-wave"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>₹ 1,85,000</h3>
+                            <p>Basic Salary</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background-color: #3498db;">
+                            <i class="fas fa-hand-holding-usd"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>₹ 25,000</h3>
+                            <p>Allowances</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background-color: #9b59b6;">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>₹ 15,000</h3>
+                            <p>Performance Bonus</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background-color: #e74c3c;">
+                            <i class="fas fa-file-invoice-dollar"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>₹ 28,500</h3>
+                            <p>Tax Deductions</p>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 style="margin: 30px 0 20px; color: var(--acentrik-blue);">Salary Breakdown</h3>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Component</th>
+                            <th>Amount (₹)</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Basic Salary</td>
+                            <td>1,85,000</td>
+                            <td>Fixed monthly salary</td>
+                        </tr>
+                        <tr>
+                            <td>House Rent Allowance</td>
+                            <td>15,000</td>
+                            <td>HRA as per company policy</td>
+                        </tr>
+                        <tr>
+                            <td>Travel Allowance</td>
+                            <td>8,000</td>
+                            <td>Monthly travel reimbursement</td>
+                        </tr>
+                        <tr>
+                            <td>Performance Bonus</td>
+                            <td>15,000</td>
+                            <td>Q2 performance bonus</td>
+                        </tr>
+                        <tr>
+                            <td>Professional Tax</td>
+                            <td>2,500</td>
+                            <td>As per state regulations</td>
+                        </tr>
+                        <tr>
+                            <td>Income Tax</td>
+                            <td>26,000</td>
+                            <td>TDS as per IT Act</td>
+                        </tr>
+                        <tr style="font-weight: bold; background-color: #f9f9f9;">
+                            <td>Net Salary</td>
+                            <td>1,94,500</td>
+                            <td>Amount credited to bank</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3 style="margin: 30px 0 20px; color: var(--acentrik-blue);">Benefits</h3>
+
+                <div class="quick-links">
+                    <div class="quick-link">
+                        <div class="quick-link-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <h4>Health Insurance</h4>
+                        <p>Coverage: ₹ 5,00,000</p>
+                    </div>
+
+                    <div class="quick-link">
+                        <div class="quick-link-icon">
+                            <i class="fas fa-piggy-bank"></i>
+                        </div>
+                        <h4>Provident Fund</h4>
+                        <p>Balance: ₹ 8,75,430</p>
+                    </div>
+
+                    <div class="quick-link">
+                        <div class="quick-link-icon">
+                            <i class="fas fa-gift"></i>
+                        </div>
+                        <h4>Wellness Benefits</h4>
+                        <p>Annual allowance: ₹ 15,000</p>
+                    </div>
+
+                    <div class="quick-link">
+                        <div class="quick-link-icon">
+                            <i class="fas fa-book-reader"></i>
+                        </div>
+                        <h4>Learning Stipend</h4>
+                        <p>Annual budget: ₹ 25,000</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Projects Content -->
+            <div id="projects" class="content-section">
+                <div class="section-header">
+                    <h2>My Projects</h2>
+                    <button class="btn">New Project Report</button>
+                </div>
+
+                <h3 style="margin-bottom: 20px; color: var(--acentrik-blue);">Active Projects</h3>
+
+                <div class="training-cards">
+                    <div class="training-card">
+                        <div class="training-category">Technology Consulting</div>
+                        <h3 class="training-title">Cloud Migration - FinCorp Bank</h3>
+                        <p>Migration of core banking applications to AWS cloud infrastructure.</p>
+                        <div class="training-progress">
+                            <div>Progress: 65%</div>
+                            <div class="progress-bar">
+                                <div class="progress-value" style="width: 65%;"></div>
+                            </div>
+                        </div>
+                        <div style="margin-top: 15px;">
+                            <strong>Deadline:</strong> August 30, 2023
+                        </div>
+                        <div style="margin-top: 10px;">
+                            <strong>Project Manager:</strong> Sarah Williams
+                        </div>
+                    </div>
+
+                    <div class="training-card">
+                        <div class="training-category">Digital Transformation</div>
+                        <h3 class="training-title">ERP Implementation - RetailMax</h3>
+                        <p>Implementation of SAP S/4HANA for retail chain operations.</p>
+                        <div class="training-progress">
+                            <div>Progress: 40%</div>
+                            <div class="progress-bar">
+                                <div class="progress-value" style="width: 40%;"></div>
+                            </div>
+                        </div>
+                        <div style="margin-top: 15px;">
+                            <strong>Deadline:</strong> November 15, 2023
+                        </div>
+                        <div style="margin-top: 10px;">
+                            <strong>Project Manager:</strong> Michael Rodriguez
+                        </div>
+                    </div>
+
+                    <div class="training-card">
+                        <div class="training-category">Strategy Consulting</div>
+                        <h3 class="training-title">Market Expansion - TechGrow Inc.</h3>
+                        <p>Strategic planning for APAC market entry and expansion.</p>
+                        <div class="training-progress">
+                            <div>Progress: 25%</div>
+                            <div class="progress-bar">
+                                <div class="progress-value" style="width: 25%;"></div>
+                            </div>
+                        </div>
+                        <div style="margin-top: 15px;">
+                            <strong>Deadline:</strong> January 20, 2024
+                        </div>
+                        <div style="margin-top: 10px;">
+                            <strong>Project Manager:</strong> Jennifer Lee
+                        </div>
+                    </div>
+                </div>
+
+                <h3 style="margin: 30px 0 20px; color: var(--acentrik-blue);">Upcoming Tasks</h3>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Task</th>
+                            <th>Project</th>
+                            <th>Due Date</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Finalize AWS architecture design</td>
+                            <td>Cloud Migration - FinCorp Bank</td>
+                            <td>June 25, 2023</td>
+                            <td>High</td>
+                            <td class="status-pending">In Progress</td>
+                        </tr>
+                        <tr>
+                            <td>Prepare client presentation</td>
+                            <td>Market Expansion - TechGrow Inc.</td>
+                            <td>June 28, 2023</td>
+                            <td>Medium</td>
+                            <td class="status-pending">Pending</td>
+                        </tr>
+                        <tr>
+                            <td>Review SAP modules</td>
+                            <td>ERP Implementation - RetailMax</td>
+                            <td>June 20, 2023</td>
+                            <td>High</td>
+                            <td class="status-approved">Completed</td>
+                        </tr>
+                        <tr>
+                            <td>Team coordination meeting</td>
+                            <td>Cloud Migration - FinCorp Bank</td>
+                            <td>June 22, 2023</td>
+                            <td>Medium</td>
+                            <td class="status-pending">Scheduled</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Training Content -->
+            <div id="training" class="content-section">
+                <div class="section-header">
+                    <h2>Training & Development</h2>
+                    <button class="btn">Browse All Courses</button>
+                </div>
+
+                <h3 style="margin-bottom: 20px; color: var(--acentrik-blue);">Recommended for You</h3>
+
+                <div class="training-cards">
+                    <div class="training-card">
+                        <div class="training-category">Cloud Computing</div>
+                        <h3 class="training-title">AWS Advanced Architecture</h3>
+                        <p>Advanced concepts in AWS cloud architecture and best practices.</p>
+                        <div class="training-progress">
+                            <div>Your Progress: 30%</div>
+                            <div class="progress-bar">
+                                <div class="progress-value" style="width: 30%;"></div>
+                            </div>
+                        </div>
+                        <button class="btn" style="margin-top: 15px; width: 100%;">Continue Learning</button>
+                    </div>
+
+                    <div class="training-card">
+                        <div class="training-category">Leadership</div>
+                        <h3 class="training-title">Strategic Management</h3>
+                        <p>Developing strategic thinking and decision-making skills.</p>
+                        <div class="training-progress">
+                            <div>Your Progress: 0%</div>
+                            <div class="progress-bar">
+                                <div class="progress-value" style="width: 0%;"></div>
+                            </div>
+                        </div>
+                        <button class="btn" style="margin-top: 15px; width: 100%;">Start Course</button>
+                    </div>
+
+                    <div class="training-card">
+                        <div class="training-category">Technology</div>
+                        <h3 class="training-title">DevOps & CI/CD Pipelines</h3>
+                        <p>Modern DevOps practices and continuous integration/deployment.</p>
+                        <div class="training-progress">
+                            <div>Your Progress: 75%</div>
+                            <div class="progress-bar">
+                                <div class="progress-value" style="width: 75%;"></div>
+                            </div>
+                        </div>
+                        <button class="btn" style="margin-top: 15px; width: 100%;">Continue Learning</button>
+                    </div>
+                </div>
+
+                <h3 style="margin: 30px 0 20px; color: var(--acentrik-blue);">My Certifications</h3>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Certification</th>
+                            <th>Issuing Authority</th>
+                            <th>Date Earned</th>
+                            <th>Valid Until</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>AWS Solutions Architect</td>
+                            <td>Amazon Web Services</td>
+                            <td>March 15, 2022</td>
+                            <td>March 15, 2025</td>
+                            <td><button class="btn" style="padding: 5px 10px; font-size: 0.8rem;">View</button></td>
+                        </tr>
+                        <tr>
+                            <td>Project Management Professional</td>
+                            <td>Project Management Institute</td>
+                            <td>August 10, 2021</td>
+                            <td>August 10, 2024</td>
+                            <td><button class="btn" style="padding: 5px 10px; font-size: 0.8rem;">View</button></td>
+                        </tr>
+                        <tr>
+                            <td>Scrum Master Certification</td>
+                            <td>Scrum Alliance</td>
+                            <td>November 5, 2020</td>
+                            <td>November 5, 2023</td>
+                            <td><button class="btn" style="padding: 5px 10px; font-size: 0.8rem;">Renew</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Documents Content -->
+            <div id="documents" class="content-section">
+                <div class="section-header">
+                    <h2>Documents</h2>
+                    <button class="btn">Upload Document</button>
+                </div>
+
+                <h3 style="margin-bottom: 20px; color: var(--acentrik-blue);">Company Documents</h3>
+
+                <div class="quick-links">
+                    <div class="quick-link">
+                        <div class="quick-link-icon">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <h4>Employee Handbook</h4>
+                        <p>Updated: Jan 2023</p>
+                        <button class="btn" style="margin-top: 10px; padding: 8px 15px;">Download</button>
+                    </div>
+
+                    <div class="quick-link">
+                        <div class="quick-link-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <h4>Policies & Procedures</h4>
+                        <p>HR and operational policies</p>
+                        <button class="btn" style="margin-top: 10px; padding: 8px 15px;">View</button>
+                    </div>
+
+                    <div class="quick-link">
+                        <div class="quick-link-icon">
+                            <i class="fas fa-file-contract"></i>
+                        </div>
+                        <h4>Code of Conduct</h4>
+                        <p>Company ethics and guidelines</p>
+                        <button class="btn" style="margin-top: 10px; padding: 8px 15px;">Download</button>
+                    </div>
+
+                    <div class="quick-link">
+                        <div class="quick-link-icon">
+                            <i class="fas fa-first-aid"></i>
+                        </div>
+                        <h4>Health & Safety</h4>
+                        <p>Workplace safety guidelines</p>
+                        <button class="btn" style="margin-top: 10px; padding: 8px 15px;">View</button>
+                    </div>
+                </div>
+
+                <h3 style="margin: 30px 0 20px; color: var(--acentrik-blue);">My Documents</h3>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Document Name</th>
+                            <th>Type</th>
+                            <th>Date Uploaded</th>
+                            <th>Size</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Employment_Contract.pdf</td>
+                            <td>Contract</td>
+                            <td>March 10, 2020</td>
+                            <td>2.4 MB</td>
+                            <td><button class="btn" style="padding: 5px 10px; font-size: 0.8rem;">Download</button></td>
+                        </tr>
+                        <tr>
+                            <td>Payslip_June_2023.pdf</td>
+                            <td>Payslip</td>
+                            <td>June 5, 2023</td>
+                            <td>1.1 MB</td>
+                            <td><button class="btn" style="padding: 5px 10px; font-size: 0.8rem;">Download</button></td>
+                        </tr>
+                        <tr>
+                            <td>Performance_Review_Q1_2023.pdf</td>
+                            <td>Review</td>
+                            <td>April 15, 2023</td>
+                            <td>1.8 MB</td>
+                            <td><button class="btn" style="padding: 5px 10px; font-size: 0.8rem;">View</button></td>
+                        </tr>
+                        <tr>
+                            <td>Tax_Declaration_2023.pdf</td>
+                            <td>Tax</td>
+                            <td>January 20, 2023</td>
+                            <td>850 KB</td>
+                            <td><button class="btn" style="padding: 5px 10px; font-size: 0.8rem;">Download</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Directory Content -->
+            <div id="directory" class="content-section">
+                <div class="section-header">
+                    <h2>Employee Directory</h2>
+                    <div class="search-bar">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" placeholder="Search employees...">
+                    </div>
+                </div>
+
+                <div class="quick-links">
+                    <div class="quick-link">
+                        <div class="employee-avatar" style="width: 60px; height: 60px; font-size: 1.5rem;">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <h4>Sarah Williams</h4>
+                        <p>Director - Technology Consulting</p>
+                        <div style="margin-top: 10px; color: var(--acentrik-blue);">sarah.williams@acentrik.com</div>
+                    </div>
+
+                    <div class="quick-link">
+                        <div class="employee-avatar" style="width: 60px; height: 60px; font-size: 1.5rem;">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <h4>Robert Chen</h4>
+                        <p>HR Director</p>
+                        <div style="margin-top: 10px; color: var(--acentrik-blue);">robert.chen@acentrik.com</div>
+                    </div>
+
+                    <div class="quick-link">
+                        <div class="employee-avatar" style="width: 60px; height: 60px; font-size: 1.5rem;">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <h4>Michael Rodriguez</h4>
+                        <p>Senior Project Manager</p>
+                        <div style="margin-top: 10px; color: var(--acentrik-blue);">michael.rodriguez@acentrik.com</div>
+                    </div>
+
+                    <div class="quick-link">
+                        <div class="employee-avatar" style="width: 60px; height: 60px; font-size: 1.5rem;">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <h4>Jennifer Lee</h4>
+                        <p>Strategy Lead</p>
+                        <div style="margin-top: 10px; color: var(--acentrik-blue);">jennifer.lee@acentrik.com</div>
+                    </div>
+                </div>
+
+                <h3 style="margin: 30px 0 20px; color: var(--acentrik-blue);">My Team (Technology Consulting)</h3>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Position</th>
+                            <th>Email</th>
+                            <th>Phone Extension</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Priya Sharma</td>
+                            <td>Consultant</td>
+                            <td>priya.sharma@acentrik.com</td>
+                            <td>4201</td>
+                            <td><button class="btn" style="padding: 5px 10px; font-size: 0.8rem;">Message</button></td>
+                        </tr>
+                        <tr>
+                            <td>David Kim</td>
+                            <td>Senior Consultant</td>
+                            <td>david.kim@acentrik.com</td>
+                            <td>4203</td>
+                            <td><button class="btn" style="padding: 5px 10px; font-size: 0.8rem;">Message</button></td>
+                        </tr>
+                        <tr>
+                            <td>Ananya Patel</td>
+                            <td>Consultant</td>
+                            <td>ananya.patel@acentrik.com</td>
+                            <td>4205</td>
+                            <td><button class="btn" style="padding: 5px 10px; font-size: 0.8rem;">Message</button></td>
+                        </tr>
+                        <tr>
+                            <td>James Wilson</td>
+                            <td>Junior Consultant</td>
+                            <td>james.wilson@acentrik.com</td>
+                            <td>4207</td>
+                            <td><button class="btn" style="padding: 5px 10px; font-size: 0.8rem;">Message</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- News Content -->
+            <div id="news" class="content-section">
+                <div class="section-header">
+                    <h2>Company News & Announcements</h2>
+                </div>
+
+                <div class="news-grid">
+                    <div class="news-card">
+                        <div class="news-image">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="news-content">
+                            <div class="news-date">June 15, 2023</div>
+                            <h3 class="news-title">Annual Company Meet 2023</h3>
+                            <p>Join us for our annual company meet on July 20th at the Grand Convention Center. This year's theme is "Innovation & Collaboration".</p>
+                        </div>
+                    </div>
+
+                    <div class="news-card">
+                        <div class="news-image">
+                            <i class="fas fa-heartbeat"></i>
+                        </div>
+                        <div class="news-content">
+                            <div class="news-date">June 10, 2023</div>
+                            <h3 class="news-title">Enhanced Health Benefits</h3>
+                            <p>We're excited to announce enhanced health insurance coverage including dental and vision care for all employees and their families.</p>
+                        </div>
+                    </div>
+
+                    <div class="news-card">
+                        <div class="news-image">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <div class="news-content">
+                            <div class="news-date">June 5, 2023</div>
+                            <h3 class="news-title">Acentrik Wins Industry Award</h3>
+                            <p>We're proud to announce that Acentrik has been awarded "Best Consultancy Firm 2023" by the Global Business Association.</p>
+                        </div>
+                    </div>
+
+                    <div class="news-card">
+                        <div class="news-image">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="news-content">
+                            <div class="news-date">May 28, 2023</div>
+                            <h3 class="news-title">Record Quarterly Growth</h3>
+                            <p>Acentrik reports 35% growth in Q1 2023, with expansion into new markets and client acquisition across sectors.</p>
+                        </div>
+                    </div>
+
+                    <div class="news-card">
+                        <div class="news-image">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+                        <div class="news-content">
+                            <div class="news-date">May 20, 2023</div>
+                            <h3 class="news-title">New Learning Platform Launch</h3>
+                            <p>Our new learning management system is now live with over 500 courses available to all employees.</p>
+                        </div>
+                    </div>
+
+                    <div class="news-card">
+                        <div class="news-image">
+                            <i class="fas fa-hands-helping"></i>
+                        </div>
+                        <div class="news-content">
+                            <div class="news-date">May 15, 2023</div>
+                            <h3 class="news-title">CSR Initiative: Education for All</h3>
+                            <p>Acentrik launches new CSR initiative focusing on digital education for underprivileged children across India.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="footer">
+                <p>Acentrik Consultancy Services Pvt. Ltd. | Employee Portal v2.1</p>
+                <p>© 2023 Acentrik Consultancy Services. All rights reserved. | Confidential & Proprietary</p>
+                <p style="margin-top: 10px; font-size: 0.8rem;">
+                    <a href="#" style="color: var(--acentrik-blue); margin: 0 10px;">Privacy Policy</a> |
+                    <a href="#" style="color: var(--acentrik-blue); margin: 0 10px;">Terms of Use</a> |
+                    <a href="#" style="color: var(--acentrik-blue); margin: 0 10px;">Help Desk</a> |
+                    <a href="#" style="color: var(--acentrik-blue); margin: 0 10px;">Contact IT Support</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Navigation functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Menu items click handler
+            const menuItems = document.querySelectorAll('.menu-item');
+            const contentSections = document.querySelectorAll('.content-section, .dashboard-content');
+            const pageTitle = document.getElementById('pageTitle');
+            const quickLinks = document.querySelectorAll('.quick-link');
+
+            // Menu titles mapping
+            const menuTitles = {
+                'dashboard': 'Employee Dashboard',
+                'profile': 'My Profile',
+                'leave': 'Leave Management',
+                'payroll': 'Payroll & Benefits',
+                'projects': 'My Projects',
+                'training': 'Training & Development',
+                'documents': 'Documents',
+                'directory': 'Employee Directory',
+                'news': 'Company News & Announcements'
+            };
+
+            // Function to switch content sections
+            function switchContent(targetId) {
+                // Hide all content sections
+                contentSections.forEach(section => {
+                    section.classList.remove('active');
+                });
+
+                // Remove active class from all menu items
+                menuItems.forEach(item => {
+                    item.classList.remove('active');
+                });
+
+                // Show target content section
+                const targetSection = document.getElementById(targetId);
+                if (targetSection) {
+                    targetSection.classList.add('active');
+                }
+
+                // Update page title
+                if (menuTitles[targetId]) {
+                    pageTitle.textContent = menuTitles[targetId];
+                }
+
+                // Add active class to clicked menu item
+                const activeMenuItem = document.querySelector(`.menu-item[data-target="${targetId}"]`);
+                if (activeMenuItem) {
+                    activeMenuItem.classList.add('active');
+                }
+
+                // Close sidebar on mobile after selection
+                if (window.innerWidth <= 768) {
+                    document.getElementById('sidebar').classList.remove('active');
+                }
+            }
+
+            // Add click event to menu items
+            menuItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const targetId = this.getAttribute('data-target');
+                    switchContent(targetId);
+                });
+            });
+
+            // Add click event to quick links
+            quickLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    const targetId = this.getAttribute('data-target');
+                    if (targetId) {
+                        switchContent(targetId);
+                    }
+                });
+            });
+
+            // Logout button functionality
+            document.getElementById('logoutBtn').addEventListener('click', function() {
+                if (confirm('Are you sure you want to logout?')) {
+                    alert('You have been logged out successfully.');
+                    // In a real application, this would redirect to login page
+                    // window.location.href = '/login';
+                }
+            });
+
+            // Edit profile button functionality
+            document.getElementById('editProfileBtn').addEventListener('click', function() {
+                alert('Edit profile functionality would open here. In a real application, this would open a form to edit profile details.');
+            });
+
+            // Apply leave button functionality
+            document.getElementById('applyLeaveBtn').addEventListener('click', function() {
+                alert('Leave application form would open here. In a real application, this would open a form to apply for leave.');
+            });
+
+            // Mobile menu toggle
+            document.getElementById('menuToggle').addEventListener('click', function() {
+                document.getElementById('sidebar').classList.toggle('active');
+            });
+
+            // Notification icon click
+            document.querySelector('.notifications').addEventListener('click', function() {
+                alert('You have 3 new notifications:\n1. Project deadline reminder\n2. Training session tomorrow\n3. New company announcement');
+            });
+
+            // Search functionality
+            const searchInput = document.querySelector('.search-bar input');
+            searchInput.addEventListener('keyup', function(e) {
+                if (e.key === 'Enter') {
+                    alert(`Searching for: "${this.value}"\nIn a real application, this would search the employee portal.`);
+                    this.value = '';
+                }
+            });
+
+            // Initialize with dashboard
+            switchContent('dashboard');
+        });
+    </script>
+</body>
+</html>
