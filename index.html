@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Acentrik Consultancy | Employee Portal</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Add Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    
     <style>
         :root {
             --acentrik-blue: #1a3a8f;
@@ -16,543 +21,89 @@
             --white: #ffffff;
             --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             --radius: 8px;
+            --success: #2ecc71;
+            --error: #e74c3c;
+            --warning: #f39c12;
         }
-
+        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-
+        
         body {
             background-color: var(--light-bg);
             color: var(--dark-text);
             line-height: 1.6;
-        }
-
-        .container {
-            display: flex;
             min-height: 100vh;
         }
-
-        /* Sidebar Styles */
-        .sidebar {
-            width: 250px;
-            background-color: var(--acentrik-blue);
-            color: var(--white);
-            padding: 25px 0;
-            position: fixed;
-            height: 100vh;
-            overflow-y: auto;
-            transition: all 0.3s;
-            z-index: 1000;
-        }
-
-        .logo-container {
-            text-align: center;
-            padding: 0 20px 30px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .logo {
+        
+        /* Login Page Styles */
+        .login-container {
             display: flex;
+            min-height: 100vh;
             align-items: center;
             justify-content: center;
-            gap: 10px;
-            font-size: 1.5rem;
-            font-weight: 700;
-        }
-
-        .logo-icon {
-            color: var(--acentrik-gold);
-            font-size: 1.8rem;
-        }
-
-        .employee-info {
             padding: 20px;
-            text-align: center;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            background: linear-gradient(135deg, var(--acentrik-blue) 0%, var(--acentrik-light) 100%);
         }
-
-        .employee-avatar {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            background-color: var(--acentrik-light);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 15px;
-            font-size: 2rem;
-            border: 3px solid var(--acentrik-gold);
-        }
-
-        .employee-name {
-            font-weight: 600;
-            font-size: 1.1rem;
-            margin-bottom: 5px;
-        }
-
-        .employee-role {
-            color: var(--acentrik-gold);
-            font-size: 0.9rem;
-            margin-bottom: 10px;
-        }
-
-        .employee-id {
-            font-size: 0.8rem;
-            opacity: 0.8;
-        }
-
-        .sidebar-menu {
-            padding: 20px 0;
-        }
-
-        .menu-item {
-            padding: 15px 25px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            cursor: pointer;
-            transition: all 0.3s;
-            border-left: 4px solid transparent;
-        }
-
-        .menu-item:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-            border-left-color: var(--acentrik-gold);
-        }
-
-        .menu-item.active {
-            background-color: rgba(255, 255, 255, 0.15);
-            border-left-color: var(--acentrik-gold);
-        }
-
-        .menu-icon {
-            width: 20px;
-            text-align: center;
-        }
-
-        .logout-container {
-            position: absolute;
-            bottom: 30px;
+        
+        .login-box {
+            background-color: var(--white);
+            border-radius: var(--radius);
+            padding: 40px;
             width: 100%;
-            padding: 0 25px;
-        }
-
-        .logout-btn {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 15px;
-            background-color: rgba(255, 255, 255, 0.1);
-            border-radius: var(--radius);
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .logout-btn:hover {
-            background-color: rgba(255, 255, 255, 0.2);
-        }
-
-        /* Main Content Styles */
-        .main-content {
-            flex: 1;
-            margin-left: 250px;
-            padding: 20px;
-        }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px;
-            background-color: var(--white);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            margin-bottom: 30px;
-        }
-
-        .header-title h1 {
-            color: var(--acentrik-blue);
-            font-size: 1.8rem;
-        }
-
-        .header-title p {
-            color: var(--light-text);
-            font-size: 0.9rem;
-        }
-
-        .header-controls {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .search-bar {
-            position: relative;
-        }
-
-        .search-bar input {
-            padding: 10px 15px 10px 40px;
-            border: 1px solid #ddd;
-            border-radius: var(--radius);
-            width: 300px;
-            transition: all 0.3s;
-        }
-
-        .search-bar input:focus {
-            outline: none;
-            border-color: var(--acentrik-light);
-            box-shadow: 0 0 0 2px rgba(45, 85, 204, 0.1);
-        }
-
-        .search-icon {
-            position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--light-text);
-        }
-
-        .notifications {
-            position: relative;
-            cursor: pointer;
-            font-size: 1.2rem;
-            color: var(--acentrik-blue);
-        }
-
-        .notification-badge {
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            background-color: #e74c3c;
-            color: white;
-            border-radius: 50%;
-            width: 18px;
-            height: 18px;
-            font-size: 0.7rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        /* Dashboard Content */
-        .dashboard-content {
-            display: none;
-        }
-
-        .dashboard-content.active {
-            display: block;
-        }
-
-        .welcome-banner {
-            background: linear-gradient(135deg, var(--acentrik-blue), var(--acentrik-light));
-            color: white;
-            padding: 30px;
-            border-radius: var(--radius);
-            margin-bottom: 30px;
-            box-shadow: var(--shadow);
-        }
-
-        .welcome-banner h2 {
-            font-size: 1.8rem;
-            margin-bottom: 10px;
-        }
-
-        .stats-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .stat-card {
-            background-color: var(--white);
-            border-radius: var(--radius);
-            padding: 25px;
-            box-shadow: var(--shadow);
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            transition: transform 0.3s;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .stat-icon {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            color: white;
-        }
-
-        .icon-leave {
-            background-color: #3498db;
-        }
-
-        .icon-payroll {
-            background-color: #2ecc71;
-        }
-
-        .icon-projects {
-            background-color: #9b59b6;
-        }
-
-        .icon-training {
-            background-color: #e67e22;
-        }
-
-        .stat-info h3 {
-            font-size: 2rem;
-            margin-bottom: 5px;
-            color: var(--acentrik-blue);
-        }
-
-        .stat-info p {
-            color: var(--light-text);
-            font-size: 0.9rem;
-        }
-
-        .quick-links {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .quick-link {
-            background-color: var(--white);
-            border-radius: var(--radius);
-            padding: 20px;
-            box-shadow: var(--shadow);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            max-width: 400px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
             text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
         }
-
-        .quick-link:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        .quick-link-icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background-color: var(--light-bg);
+        
+        .login-logo {
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.2rem;
+            gap: 15px;
+            margin-bottom: 30px;
             color: var(--acentrik-blue);
-            margin-bottom: 15px;
         }
-
-        .announcements {
-            background-color: var(--white);
-            border-radius: var(--radius);
-            padding: 25px;
-            box-shadow: var(--shadow);
-        }
-
-        .announcements h3 {
-            color: var(--acentrik-blue);
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #eee;
-        }
-
-        .announcement-item {
-            padding: 15px 0;
-            border-bottom: 1px solid #f5f5f5;
-        }
-
-        .announcement-item:last-child {
-            border-bottom: none;
-        }
-
-        .announcement-date {
-            font-size: 0.8rem;
+        
+        .login-logo i {
+            font-size: 2.5rem;
             color: var(--acentrik-gold);
-            font-weight: 600;
-            margin-bottom: 5px;
         }
-
-        /* Responsive Styles */
-        @media (max-width: 1024px) {
-            .sidebar {
-                width: 220px;
-            }
-
-            .main-content {
-                margin-left: 220px;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                flex-direction: column;
-            }
-
-            .sidebar {
-                width: 100%;
-                height: auto;
-                position: relative;
-                padding: 15px 0;
-            }
-
-            .main-content {
-                margin-left: 0;
-                padding: 15px;
-            }
-
-            .header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 15px;
-            }
-
-            .search-bar input {
-                width: 100%;
-            }
-
-            .stats-cards {
-                grid-template-columns: 1fr;
-            }
-
-            .employee-info {
-                display: flex;
-                align-items: center;
-                gap: 15px;
-                text-align: left;
-            }
-
-            .employee-avatar {
-                margin: 0;
-                width: 60px;
-                height: 60px;
-                font-size: 1.5rem;
-            }
-
-            .logout-container {
-                position: relative;
-                bottom: auto;
-                margin-top: 20px;
-            }
-        }
-
-        /* Content Sections */
-        .content-section {
-            display: none;
-            animation: fadeIn 0.5s;
-        }
-
-        .content-section.active {
-            display: block;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-        }
-
-        .section-header h2 {
-            color: var(--acentrik-blue);
+        
+        .login-logo h1 {
             font-size: 1.8rem;
         }
-
-        .btn {
-            padding: 10px 20px;
-            background-color: var(--acentrik-blue);
-            color: white;
-            border: none;
-            border-radius: var(--radius);
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s;
+        
+        .login-title {
+            color: var(--acentrik-blue);
+            margin-bottom: 10px;
+            font-size: 1.5rem;
         }
-
-        .btn:hover {
-            background-color: var(--acentrik-light);
+        
+        .login-subtitle {
+            color: var(--light-text);
+            margin-bottom: 30px;
         }
-
-        .btn-gold {
-            background-color: var(--acentrik-gold);
-        }
-
-        .btn-gold:hover {
-            background-color: #c19b2e;
-        }
-
-        table {
-            width: 100%;
-            background-color: var(--white);
-            border-radius: var(--radius);
-            overflow: hidden;
-            box-shadow: var(--shadow);
-            border-collapse: collapse;
-        }
-
-        th {
-            background-color: var(--acentrik-blue);
-            color: white;
-            padding: 15px;
+        
+        .login-form {
             text-align: left;
         }
-
-        td {
-            padding: 15px;
-            border-bottom: 1px solid #eee;
-        }
-
-        tr:hover {
-            background-color: #f9f9f9;
-        }
-
-        .status-approved {
-            color: #2ecc71;
-            font-weight: 600;
-        }
-
-        .status-pending {
-            color: #f39c12;
-            font-weight: 600;
-        }
-
-        .status-rejected {
-            color: #e74c3c;
-            font-weight: 600;
-        }
-
+        
         .form-group {
             margin-bottom: 20px;
         }
-
+        
         .form-group label {
             display: block;
             margin-bottom: 8px;
             font-weight: 600;
             color: var(--dark-text);
         }
-
+        
         .form-control {
             width: 100%;
             padding: 12px 15px;
@@ -561,1189 +112,982 @@
             font-size: 1rem;
             transition: all 0.3s;
         }
-
+        
         .form-control:focus {
             outline: none;
             border-color: var(--acentrik-light);
             box-shadow: 0 0 0 2px rgba(45, 85, 204, 0.1);
         }
-
-        /* Profile Section */
-        .profile-container {
-            display: flex;
-            gap: 30px;
-        }
-
-        .profile-sidebar {
-            width: 300px;
-            background-color: var(--white);
-            border-radius: var(--radius);
-            padding: 25px;
-            box-shadow: var(--shadow);
-            height: fit-content;
-        }
-
-        .profile-main {
-            flex: 1;
-            background-color: var(--white);
-            border-radius: var(--radius);
-            padding: 25px;
-            box-shadow: var(--shadow);
-        }
-
-        .profile-picture {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            background-color: var(--acentrik-light);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 3rem;
-            color: white;
-            margin: 0 auto 20px;
-            border: 5px solid var(--acentrik-gold);
-        }
-
-        @media (max-width: 1024px) {
-            .profile-container {
-                flex-direction: column;
-            }
-
-            .profile-sidebar {
-                width: 100%;
-            }
-        }
-
-        /* Company News */
-        .news-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 25px;
-        }
-
-        .news-card {
-            background-color: var(--white);
-            border-radius: var(--radius);
-            overflow: hidden;
-            box-shadow: var(--shadow);
-            transition: transform 0.3s;
-        }
-
-        .news-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .news-image {
-            height: 180px;
+        
+        .login-btn {
+            width: 100%;
+            padding: 14px;
             background-color: var(--acentrik-blue);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+        
+        .login-btn:hover {
+            background-color: var(--acentrik-light);
+        }
+        
+        .btn-secondary {
+            background-color: #f8f9fa;
+            color: var(--dark-text);
+            border: 1px solid #ddd;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #e9ecef;
+        }
+        
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 25px 0;
+            color: var(--light-text);
+        }
+        
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .divider span {
+            padding: 0 15px;
+            font-size: 0.9rem;
+        }
+        
+        .forgot-password {
+            text-align: center;
+            margin-top: 15px;
+        }
+        
+        .forgot-password a {
+            color: var(--acentrik-light);
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        
+        .forgot-password a:hover {
+            text-decoration: underline;
+        }
+        
+        .alert {
+            padding: 12px 15px;
+            border-radius: var(--radius);
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .alert-success {
+            background-color: rgba(46, 204, 113, 0.1);
+            border: 1px solid var(--success);
+            color: var(--success);
+        }
+        
+        .alert-error {
+            background-color: rgba(231, 76, 60, 0.1);
+            border: 1px solid var(--error);
+            color: var(--error);
+        }
+        
+        .alert-warning {
+            background-color: rgba(243, 156, 18, 0.1);
+            border: 1px solid var(--warning);
+            color: var(--warning);
+        }
+        
+        /* Employee Portal Container (hidden initially) */
+        .portal-container {
+            display: none;
+        }
+        
+        /* Portal Header with User Info */
+        .portal-header {
+            background-color: var(--acentrik-blue);
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--acentrik-gold);
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-size: 2rem;
+            font-weight: bold;
+            font-size: 1.2rem;
         }
-
-        .news-content {
-            padding: 20px;
+        
+        .user-details {
+            display: flex;
+            flex-direction: column;
         }
-
-        .news-date {
-            font-size: 0.8rem;
-            color: var(--acentrik-gold);
+        
+        .user-name {
             font-weight: 600;
-            margin-bottom: 10px;
         }
-
-        .news-title {
-            font-size: 1.2rem;
-            color: var(--acentrik-blue);
-            margin-bottom: 10px;
-        }
-
-        /* Training Section */
-        .training-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 25px;
-        }
-
-        .training-card {
-            background-color: var(--white);
-            border-radius: var(--radius);
-            padding: 25px;
-            box-shadow: var(--shadow);
-            transition: transform 0.3s;
-        }
-
-        .training-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .training-category {
-            display: inline-block;
-            padding: 5px 10px;
-            background-color: var(--light-bg);
-            border-radius: 20px;
+        
+        .user-role {
             font-size: 0.8rem;
-            color: var(--acentrik-blue);
-            margin-bottom: 15px;
+            opacity: 0.8;
         }
-
-        .training-title {
-            font-size: 1.2rem;
-            color: var(--acentrik-blue);
-            margin-bottom: 10px;
-        }
-
-        .training-progress {
-            margin: 15px 0;
-        }
-
-        .progress-bar {
-            height: 8px;
-            background-color: #eee;
-            border-radius: 4px;
-            overflow: hidden;
-        }
-
-        .progress-value {
-            height: 100%;
-            background-color: var(--acentrik-gold);
-        }
-
-        /* Footer */
-        .footer {
-            margin-top: 50px;
-            padding: 20px;
-            text-align: center;
-            color: var(--light-text);
-            font-size: 0.9rem;
-            border-top: 1px solid #eee;
-        }
-
-        /* Toggle Button for Mobile */
-        .menu-toggle {
-            display: none;
-            font-size: 1.5rem;
-            color: var(--acentrik-blue);
+        
+        .logout-btn {
+            background-color: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: var(--radius);
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
         }
-
-        @media (max-width: 768px) {
-            .menu-toggle {
-                display: block;
-            }
-
-            .sidebar {
-                transform: translateX(-100%);
-                position: fixed;
-                height: 100%;
-                z-index: 1000;
-            }
-
-            .sidebar.active {
-                transform: translateX(0);
-            }
-
-            .main-content {
-                margin-left: 0;
-            }
+        
+        .logout-btn:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Rest of your existing portal styles... */
+        /* Copy all your existing portal CSS here */
+        /* I'll show the key additions first, then you can merge */
+        
+        .container {
+            display: flex;
+            min-height: calc(100vh - 70px);
+        }
+        
+        .sidebar {
+            width: 250px;
+            background-color: var(--acentrik-blue);
+            color: var(--white);
+            padding: 25px 0;
+            height: 100%;
+            overflow-y: auto;
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+        
+        /* ... ALL YOUR EXISTING PORTAL CSS ... */
+        /* Make sure to include all your existing CSS from the previous version */
+        
+        /* Modal for password reset */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: var(--radius);
+            width: 90%;
+            max-width: 400px;
+            box-shadow: var(--shadow);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-title {
+            color: var(--acentrik-blue);
+            font-size: 1.3rem;
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--light-text);
+        }
+        
+        /* Loading Spinner */
+        .spinner {
+            display: none;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 3px solid white;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .btn-loading {
+            position: relative;
+            color: transparent;
+        }
+        
+        .btn-loading::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 2px solid white;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
         }
     </style>
+    
+    <!-- ALL YOUR EXISTING PORTAL HTML -->
+    <!-- We'll wrap it in a container that shows only after login -->
 </head>
 <body>
-    <div class="container">
-        <!-- Sidebar Navigation -->
-        <div class="sidebar" id="sidebar">
-            <div class="logo-container">
-                <div class="logo">
-                    <i class="fas fa-chart-network logo-icon"></i>
-                    <span>Acentrik</span>
-                </div>
-                <p>Employee Portal</p>
+    <!-- Login Page (Shown First) -->
+    <div id="loginPage" class="login-container">
+        <div class="login-box">
+            <div class="login-logo">
+                <i class="fas fa-chart-network"></i>
+                <h1>Acentrik</h1>
             </div>
-
-            <div class="employee-info">
-                <div class="employee-avatar">
-                    <i class="fas fa-user"></i>
+            
+            <h2 class="login-title">Employee Portal</h2>
+            <p class="login-subtitle">Sign in to access your dashboard</p>
+            
+            <!-- Alert Messages -->
+            <div id="loginAlert" class="alert alert-error" style="display: none;"></div>
+            <div id="successAlert" class="alert alert-success" style="display: none;"></div>
+            
+            <!-- Login Form -->
+            <form id="loginForm" class="login-form">
+                <div class="form-group">
+                    <label for="loginEmail">Company Email</label>
+                    <input type="email" id="loginEmail" class="form-control" 
+                           placeholder="employee@acentrik.com" required>
                 </div>
-                <div class="employee-name">Alex Johnson</div>
-                <div class="employee-role">Senior Consultant</div>
-                <div class="employee-id">EMP-ACS-2023-087</div>
+                
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" class="form-control" 
+                           placeholder="Enter your password" required>
+                </div>
+                
+                <button type="submit" id="loginButton" class="login-btn">
+                    <span>Sign In</span>
+                    <div class="spinner" id="loginSpinner"></div>
+                </button>
+                
+                <div class="forgot-password">
+                    <a href="#" id="forgotPasswordLink">Forgot your password?</a>
+                </div>
+            </form>
+            
+            <div class="divider">
+                <span>Demo Accounts</span>
             </div>
-
-            <div class="sidebar-menu">
-                <div class="menu-item active" data-target="dashboard">
-                    <div class="menu-icon"><i class="fas fa-home"></i></div>
-                    <span>Dashboard</span>
-                </div>
-                <div class="menu-item" data-target="profile">
-                    <div class="menu-icon"><i class="fas fa-user-circle"></i></div>
-                    <span>My Profile</span>
-                </div>
-                <div class="menu-item" data-target="leave">
-                    <div class="menu-icon"><i class="fas fa-calendar-alt"></i></div>
-                    <span>Leave Management</span>
-                </div>
-                <div class="menu-item" data-target="payroll">
-                    <div class="menu-icon"><i class="fas fa-money-check-alt"></i></div>
-                    <span>Payroll & Benefits</span>
-                </div>
-                <div class="menu-item" data-target="projects">
-                    <div class="menu-icon"><i class="fas fa-project-diagram"></i></div>
-                    <span>My Projects</span>
-                </div>
-                <div class="menu-item" data-target="training">
-                    <div class="menu-icon"><i class="fas fa-graduation-cap"></i></div>
-                    <span>Training & Development</span>
-                </div>
-                <div class="menu-item" data-target="documents">
-                    <div class="menu-icon"><i class="fas fa-folder"></i></div>
-                    <span>Documents</span>
-                </div>
-                <div class="menu-item" data-target="directory">
-                    <div class="menu-icon"><i class="fas fa-address-book"></i></div>
-                    <span>Employee Directory</span>
-                </div>
-                <div class="menu-item" data-target="news">
-                    <div class="menu-icon"><i class="fas fa-newspaper"></i></div>
-                    <span>Company News</span>
-                </div>
+            
+            <!-- Demo Login Buttons -->
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <button class="login-btn btn-secondary" id="demoAdminBtn">
+                    <i class="fas fa-user-shield"></i> Login as Admin
+                </button>
+                <button class="login-btn btn-secondary" id="demoEmployeeBtn">
+                    <i class="fas fa-user-tie"></i> Login as Employee
+                </button>
+                <button class="login-btn btn-secondary" id="demoHRBtn">
+                    <i class="fas fa-users"></i> Login as HR Manager
+                </button>
             </div>
-
-            <div class="logout-container">
-                <div class="logout-btn" id="logoutBtn">
-                    <i class="fas fa-sign-out-alt"></i>
-                    <span>Logout</span>
+            
+            <!-- Password Reset Modal -->
+            <div id="resetModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 class="modal-title">Reset Password</h3>
+                        <button class="close-modal" id="closeModal">&times;</button>
+                    </div>
+                    <div id="resetAlert" class="alert" style="display: none;"></div>
+                    <form id="resetForm">
+                        <div class="form-group">
+                            <label for="resetEmail">Enter your email address</label>
+                            <input type="email" id="resetEmail" class="form-control" 
+                                   placeholder="employee@acentrik.com" required>
+                        </div>
+                        <button type="submit" id="resetButton" class="login-btn">
+                            Send Reset Link
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
-
-        <!-- Main Content -->
-        <div class="main-content">
-            <!-- Header -->
-            <div class="header">
-                <div class="header-title">
-                    <h1 id="pageTitle">Employee Dashboard</h1>
-                    <p>Welcome to Acentrik Consultancy Services Employee Portal</p>
+    </div>
+    
+    <!-- Portal Container (Hidden until login) -->
+    <div id="portalContainer" class="portal-container">
+        <!-- Portal Header with User Info -->
+        <div class="portal-header">
+            <div class="logo-container">
+                <div class="logo">
+                    <i class="fas fa-chart-network"></i>
+                    <span>Acentrik Employee Portal</span>
                 </div>
-                <div class="header-controls">
-                    <div class="menu-toggle" id="menuToggle">
-                        <i class="fas fa-bars"></i>
+            </div>
+            
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">AJ</div>
+                <div class="user-details">
+                    <div class="user-name" id="userName">Alex Johnson</div>
+                    <div class="user-role" id="userRole">Senior Consultant</div>
+                </div>
+                <button class="logout-btn" id="portalLogoutBtn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </div>
+        
+        <!-- Your Existing Portal Content Goes Here -->
+        <div class="container">
+            <!-- Sidebar Navigation -->
+            <div class="sidebar" id="sidebar">
+                <div class="employee-info">
+                    <div class="employee-avatar" id="sidebarAvatar">
+                        <i class="fas fa-user"></i>
                     </div>
-                    <div class="search-bar">
-                        <i class="fas fa-search search-icon"></i>
-                        <input type="text" placeholder="Search portal...">
+                    <div class="employee-name" id="sidebarName">Alex Johnson</div>
+                    <div class="employee-role" id="sidebarRole">Senior Consultant</div>
+                    <div class="employee-id" id="sidebarId">EMP-ACS-2023-087</div>
+                </div>
+                
+                <div class="sidebar-menu">
+                    <div class="menu-item active" data-target="dashboard">
+                        <div class="menu-icon"><i class="fas fa-home"></i></div>
+                        <span>Dashboard</span>
                     </div>
-                    <div class="notifications">
-                        <i class="fas fa-bell"></i>
-                        <span class="notification-badge">3</span>
+                    <div class="menu-item" data-target="profile">
+                        <div class="menu-icon"><i class="fas fa-user-circle"></i></div>
+                        <span>My Profile</span>
+                    </div>
+                    <div class="menu-item" data-target="leave">
+                        <div class="menu-icon"><i class="fas fa-calendar-alt"></i></div>
+                        <span>Leave Management</span>
+                    </div>
+                    <div class="menu-item" data-target="payroll">
+                        <div class="menu-icon"><i class="fas fa-money-check-alt"></i></div>
+                        <span>Payroll & Benefits</span>
+                    </div>
+                    <div class="menu-item" data-target="projects">
+                        <div class="menu-icon"><i class="fas fa-project-diagram"></i></div>
+                        <span>My Projects</span>
+                    </div>
+                    <div class="menu-item" data-target="training">
+                        <div class="menu-icon"><i class="fas fa-graduation-cap"></i></div>
+                        <span>Training & Development</span>
+                    </div>
+                    <div class="menu-item" data-target="documents">
+                        <div class="menu-icon"><i class="fas fa-folder"></i></div>
+                        <span>Documents</span>
+                    </div>
+                    <div class="menu-item" data-target="directory">
+                        <div class="menu-icon"><i class="fas fa-address-book"></i></div>
+                        <span>Employee Directory</span>
+                    </div>
+                    <div class="menu-item" data-target="news">
+                        <div class="menu-icon"><i class="fas fa-newspaper"></i></div>
+                        <span>Company News</span>
+                    </div>
+                    
+                    <!-- Admin Panel (Visible only for admin users) -->
+                    <div class="menu-item admin-only" data-target="admin" style="display: none;">
+                        <div class="menu-icon"><i class="fas fa-cogs"></i></div>
+                        <span>Admin Panel</span>
+                    </div>
+                </div>
+                
+                <div class="logout-container">
+                    <div class="logout-btn" id="sidebarLogoutBtn">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
                     </div>
                 </div>
             </div>
-
-            <!-- Dashboard Content -->
-            <div id="dashboard" class="dashboard-content active">
-                <div class="welcome-banner">
-                    <h2>Welcome back, Alex!</h2>
-                    <p>Here's what's happening at Acentrik today. You have 2 pending tasks and 1 new announcement.</p>
-                </div>
-
-                <div class="stats-cards">
-                    <div class="stat-card">
-                        <div class="stat-icon icon-leave">
-                            <i class="fas fa-calendar-day"></i>
-                        </div>
-                        <div class="stat-info">
-                            <h3>12</h3>
-                            <p>Leave Days Available</p>
-                        </div>
+            
+            <!-- Main Content -->
+            <div class="main-content">
+                <!-- Header -->
+                <div class="header">
+                    <div class="header-title">
+                        <h1 id="pageTitle">Employee Dashboard</h1>
+                        <p id="welcomeMessage">Welcome to Acentrik Consultancy Services Employee Portal</p>
                     </div>
-
-                    <div class="stat-card">
-                        <div class="stat-icon icon-payroll">
-                            <i class="fas fa-wallet"></i>
+                    <div class="header-controls">
+                        <div class="menu-toggle" id="menuToggle">
+                            <i class="fas fa-bars"></i>
                         </div>
-                        <div class="stat-info">
-                            <h3>15</h3>
-                            <p>Days to Next Payroll</p>
+                        <div class="search-bar">
+                            <i class="fas fa-search search-icon"></i>
+                            <input type="text" placeholder="Search portal...">
                         </div>
-                    </div>
-
-                    <div class="stat-card">
-                        <div class="stat-icon icon-projects">
-                            <i class="fas fa-tasks"></i>
-                        </div>
-                        <div class="stat-info">
-                            <h3>4</h3>
-                            <p>Active Projects</p>
-                        </div>
-                    </div>
-
-                    <div class="stat-card">
-                        <div class="stat-icon icon-training">
-                            <i class="fas fa-certificate"></i>
-                        </div>
-                        <div class="stat-info">
-                            <h3>2</h3>
-                            <p>Pending Trainings</p>
+                        <div class="notifications">
+                            <i class="fas fa-bell"></i>
+                            <span class="notification-badge">3</span>
                         </div>
                     </div>
                 </div>
-
-                <div class="quick-links">
-                    <div class="quick-link" data-target="leave">
-                        <div class="quick-link-icon">
-                            <i class="fas fa-plane"></i>
-                        </div>
-                        <h4>Apply Leave</h4>
-                        <p>Submit a new leave request</p>
+                
+                <!-- Dashboard Content -->
+                <div id="dashboard" class="dashboard-content active">
+                    <div class="welcome-banner" id="personalizedWelcome">
+                        <h2>Welcome back, <span id="welcomeName">Alex</span>!</h2>
+                        <p>Here's what's happening at Acentrik today. You have 2 pending tasks and 1 new announcement.</p>
                     </div>
-
-                    <div class="quick-link" data-target="documents">
-                        <div class="quick-link-icon">
-                            <i class="fas fa-file-download"></i>
-                        </div>
-                        <h4>Download Payslip</h4>
-                        <p>Latest payslip available</p>
-                    </div>
-
-                    <div class="quick-link" data-target="projects">
-                        <div class="quick-link-icon">
-                            <i class="fas fa-chart-line"></i>
-                        </div>
-                        <h4>Project Reports</h4>
-                        <p>View project status</p>
-                    </div>
-
-                    <div class="quick-link" data-target="training">
-                        <div class="quick-link-icon">
-                            <i class="fas fa-book-open"></i>
-                        </div>
-                        <h4>Training Library</h4>
-                        <p>Access learning materials</p>
-                    </div>
-                </div>
-
-                <div class="announcements">
-                    <h3>Recent Announcements</h3>
-                    <div class="announcement-item">
-                        <div class="announcement-date">June 15, 2023</div>
-                        <h4>Annual Company Meet 2023</h4>
-                        <p>Join us for our annual company meet on July 20th at the Grand Convention Center. Registration opens next week.</p>
-                    </div>
-                    <div class="announcement-item">
-                        <div class="announcement-date">June 10, 2023</div>
-                        <h4>New Health Insurance Benefits</h4>
-                        <p>We've enhanced our health insurance coverage to include dental and vision care for all employees.</p>
-                    </div>
-                    <div class="announcement-item">
-                        <div class="announcement-date">June 5, 2023</div>
-                        <h4>Quarterly Performance Reviews</h4>
-                        <p>Q2 performance reviews will begin on June 20th. Please ensure your self-assessments are completed by June 18th.</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Profile Content -->
-            <div id="profile" class="content-section">
-                <div class="section-header">
-                    <h2>My Profile</h2>
-                    <button class="btn btn-gold" id="editProfileBtn">Edit Profile</button>
-                </div>
-
-                <div class="profile-container">
-                    <div class="profile-sidebar">
-                        <div class="profile-picture">
-                            <i class="fas fa-user"></i>
-                        </div>
-                        <h3 style="text-align: center; margin-bottom: 20px;">Alex Johnson</h3>
-                        <div style="margin-bottom: 15px;">
-                            <strong>Employee ID:</strong> EMP-ACS-2023-087
-                        </div>
-                        <div style="margin-bottom: 15px;">
-                            <strong>Department:</strong> Technology Consulting
-                        </div>
-                        <div style="margin-bottom: 15px;">
-                            <strong>Position:</strong> Senior Consultant
-                        </div>
-                        <div style="margin-bottom: 15px;">
-                            <strong>Date of Joining:</strong> March 15, 2020
-                        </div>
-                        <div style="margin-bottom: 15px;">
-                            <strong>Work Location:</strong> Mumbai HQ
-                        </div>
-                        <div style="margin-bottom: 15px;">
-                            <strong>Employment Type:</strong> Full-time
-                        </div>
-                    </div>
-
-                    <div class="profile-main">
-                        <h3 style="margin-bottom: 20px; color: var(--acentrik-blue);">Personal Information</h3>
-
-                        <div class="form-group">
-                            <label>Email Address</label>
-                            <div class="form-control">alex.johnson@acentrik.com</div>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Phone Number</label>
-                            <div class="form-control">+91 98765 43210</div>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Address</label>
-                            <div class="form-control">201, Skyline Apartments, Bandra West, Mumbai - 400050</div>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Emergency Contact</label>
-                            <div class="form-control">Maria Johnson (+91 98765 43211)</div>
-                        </div>
-
-                        <h3 style="margin: 30px 0 20px; color: var(--acentrik-blue);">Skills & Certifications</h3>
-
-                        <div style="margin-bottom: 15px;">
-                            <strong>Primary Skills:</strong> Cloud Architecture, DevOps, Project Management, Agile Methodologies
-                        </div>
-
-                        <div style="margin-bottom: 15px;">
-                            <strong>Certifications:</strong> AWS Solutions Architect, PMP, Scrum Master
-                        </div>
-
-                        <h3 style="margin: 30px 0 20px; color: var(--acentrik-blue);">Reporting Structure</h3>
-
-                        <div style="margin-bottom: 15px;">
-                            <strong>Line Manager:</strong> Sarah Williams (Director - Technology Consulting)
-                        </div>
-
-                        <div style="margin-bottom: 15px;">
-                            <strong>HR Manager:</strong> Robert Chen (HR Director)
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Leave Management Content -->
-            <div id="leave" class="content-section">
-                <div class="section-header">
-                    <h2>Leave Management</h2>
-                    <button class="btn" id="applyLeaveBtn">Apply for Leave</button>
-                </div>
-
-                <h3 style="margin-bottom: 20px; color: var(--acentrik-blue);">My Leave Balance</h3>
-
-                <div class="stats-cards">
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background-color: #3498db;">
-                            <i class="fas fa-sun"></i>
-                        </div>
-                        <div class="stat-info">
-                            <h3>12</h3>
-                            <p>Annual Leave</p>
-                        </div>
-                    </div>
-
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background-color: #2ecc71;">
-                            <i class="fas fa-plus-circle"></i>
-                        </div>
-                        <div class="stat-info">
-                            <h3>8</h3>
-                            <p>Sick Leave</p>
-                        </div>
-                    </div>
-
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background-color: #9b59b6;">
-                            <i class="fas fa-heart"></i>
-                        </div>
-                        <div class="stat-info">
-                            <h3>5</h3>
-                            <p>Personal Leave</p>
-                        </div>
-                    </div>
-
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background-color: #e67e22;">
-                            <i class="fas fa-baby"></i>
-                        </div>
-                        <div class="stat-info">
-                            <h3>15</h3>
-                            <p>Parental Leave</p>
-                        </div>
-                    </div>
-                </div>
-
-                <h3 style="margin: 30px 0 20px; color: var(--acentrik-blue);">Recent Leave Applications</h3>
-
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Leave Type</th>
-                            <th>From</th>
-                            <th>To</th>
-                            <th>Duration</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Annual Leave</td>
-                            <td>June 20, 2023</td>
-                            <td>June 23, 2023</td>
-                            <td>4 days</td>
-                            <td class="status-approved">Approved</td>
-                            <td><button class="btn" style="padding: 5px 10px; font-size: 0.8rem;">View</button></td>
-                        </tr>
-                        <tr>
-                            <td>Sick Leave</td>
-                            <td>June 5, 2023</td>
-                            <td>June 6, 2023</td>
-                            <td>2 days</td>
-                            <td class="status-approved">Approved</td>
-                            <td><button class="btn" style="padding: 5px 10px; font-size: 0.8rem;">View</button></td>
-                        </tr>
-                        <tr>
-                            <td>Personal Leave</td>
-                            <td>May 15, 2023</td>
-                            <td>May 16, 2023</td>
-                            <td>2 days</td>
-                            <td class="status-approved">Approved</td>
-                            <td><button class="btn" style="padding: 5px 10px; font-size: 0.8rem;">View</button></td>
-                        </tr>
-                        <tr>
-                            <td>Annual Leave</td>
-                            <td>July 10, 2023</td>
-                            <td>July 14, 2023</td>
-                            <td>5 days</td>
-                            <td class="status-pending">Pending</td>
-                            <td><button class="btn" style="padding: 5px 10px; font-size: 0.8rem;">Cancel</button></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Payroll Content -->
-            <div id="payroll" class="content-section">
-                <div class="section-header">
-                    <h2>Payroll & Benefits</h2>
-                    <button class="btn">Download Payslip</button>
-                </div>
-
-                <h3 style="margin-bottom: 20px; color: var(--acentrik-blue);">Salary Details - June 2023</h3>
-
-                <div class="stats-cards">
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background-color: #2ecc71;">
-                            <i class="fas fa-money-bill-wave"></i>
-                        </div>
-                        <div class="stat-info">
-                            <h3>₹ 1,85,000</h3>
-                            <p>Basic Salary</p>
-                        </div>
-                    </div>
-
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background-color: #3498db;">
-                            <i class="fas fa-hand-holding-usd"></i>
-                        </div>
-                        <div class="stat-info">
-                            <h3>₹ 25,000</h3>
-                            <p>Allowances</p>
-                        </div>
-                    </div>
-
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background-color: #9b59b6;">
-                            <i class="fas fa-chart-line"></i>
-                        </div>
-                        <div class="stat-info">
-                            <h3>₹ 15,000</h3>
-                            <p>Performance Bonus</p>
-                        </div>
-                    </div>
-
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background-color: #e74c3c;">
-                            <i class="fas fa-file-invoice-dollar"></i>
-                        </div>
-                        <div class="stat-info">
-                            <h3>₹ 28,500</h3>
-                            <p>Tax Deductions</p>
-                        </div>
-                    </div>
-                </div>
-
-                <h3 style="margin: 30px 0 20px; color: var(--acentrik-blue);">Salary Breakdown</h3>
-
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Component</th>
-                            <th>Amount (₹)</th>
-                            <th>Description</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Basic Salary</td>
-                            <td>1,85,000</td>
-                            <td>Fixed monthly salary</td>
-                        </tr>
-                        <tr>
-                            <td>House Rent Allowance</td>
-                            <td>15,000</td>
-                            <td>HRA as per company policy</td>
-                        </tr>
-                        <tr>
-                            <td>Travel Allowance</td>
-                            <td>8,000</td>
-                            <td>Monthly travel reimbursement</td>
-                        </tr>
-                        <tr>
-                            <td>Performance Bonus</td>
-                            <td>15,000</td>
-                            <td>Q2 performance bonus</td>
-                        </tr>
-                        <tr>
-                            <td>Professional Tax</td>
-                            <td>2,500</td>
-                            <td>As per state regulations</td>
-                        </tr>
-                        <tr>
-                            <td>Income Tax</td>
-                            <td>26,000</td>
-                            <td>TDS as per IT Act</td>
-                        </tr>
-                        <tr style="font-weight: bold; background-color: #f9f9f9;">
-                            <td>Net Salary</td>
-                            <td>1,94,500</td>
-                            <td>Amount credited to bank</td>
-                        </tr>
-                    </tbody>
-                </table>
-
-                <h3 style="margin: 30px 0 20px; color: var(--acentrik-blue);">Benefits</h3>
-
-                <div class="quick-links">
-                    <div class="quick-link">
-                        <div class="quick-link-icon">
-                            <i class="fas fa-shield-alt"></i>
-                        </div>
-                        <h4>Health Insurance</h4>
-                        <p>Coverage: ₹ 5,00,000</p>
-                    </div>
-
-                    <div class="quick-link">
-                        <div class="quick-link-icon">
-                            <i class="fas fa-piggy-bank"></i>
-                        </div>
-                        <h4>Provident Fund</h4>
-                        <p>Balance: ₹ 8,75,430</p>
-                    </div>
-
-                    <div class="quick-link">
-                        <div class="quick-link-icon">
-                            <i class="fas fa-gift"></i>
-                        </div>
-                        <h4>Wellness Benefits</h4>
-                        <p>Annual allowance: ₹ 15,000</p>
-                    </div>
-
-                    <div class="quick-link">
-                        <div class="quick-link-icon">
-                            <i class="fas fa-book-reader"></i>
-                        </div>
-                        <h4>Learning Stipend</h4>
-                        <p>Annual budget: ₹ 25,000</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Projects Content -->
-            <div id="projects" class="content-section">
-                <div class="section-header">
-                    <h2>My Projects</h2>
-                    <button class="btn">New Project Report</button>
-                </div>
-
-                <h3 style="margin-bottom: 20px; color: var(--acentrik-blue);">Active Projects</h3>
-
-                <div class="training-cards">
-                    <div class="training-card">
-                        <div class="training-category">Technology Consulting</div>
-                        <h3 class="training-title">Cloud Migration - FinCorp Bank</h3>
-                        <p>Migration of core banking applications to AWS cloud infrastructure.</p>
-                        <div class="training-progress">
-                            <div>Progress: 65%</div>
-                            <div class="progress-bar">
-                                <div class="progress-value" style="width: 65%;"></div>
+                    
+                    <!-- Your existing dashboard content... -->
+                    <!-- Copy all your existing portal content here -->
+                    <!-- I'll show the key authenticated parts -->
+                    
+                    <div class="stats-cards">
+                        <div class="stat-card">
+                            <div class="stat-icon icon-leave">
+                                <i class="fas fa-calendar-day"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="leaveBalance">12</h3>
+                                <p>Leave Days Available</p>
                             </div>
                         </div>
-                        <div style="margin-top: 15px;">
-                            <strong>Deadline:</strong> August 30, 2023
+                        <!-- ... rest of your existing content ... -->
+                    </div>
+                    
+                    <!-- Admin Panel Content (Visible only for admin) -->
+                    <div id="admin" class="content-section">
+                        <div class="section-header">
+                            <h2>Admin Panel</h2>
                         </div>
-                        <div style="margin-top: 10px;">
-                            <strong>Project Manager:</strong> Sarah Williams
+                        <div class="admin-content">
+                            <h3>User Management</h3>
+                            <div id="usersList"></div>
+                            <!-- Admin features will be populated here -->
                         </div>
                     </div>
-
-                    <div class="training-card">
-                        <div class="training-category">Digital Transformation</div>
-                        <h3 class="training-title">ERP Implementation - RetailMax</h3>
-                        <p>Implementation of SAP S/4HANA for retail chain operations.</p>
-                        <div class="training-progress">
-                            <div>Progress: 40%</div>
-                            <div class="progress-bar">
-                                <div class="progress-value" style="width: 40%;"></div>
-                            </div>
-                        </div>
-                        <div style="margin-top: 15px;">
-                            <strong>Deadline:</strong> November 15, 2023
-                        </div>
-                        <div style="margin-top: 10px;">
-                            <strong>Project Manager:</strong> Michael Rodriguez
-                        </div>
-                    </div>
-
-                    <div class="training-card">
-                        <div class="training-category">Strategy Consulting</div>
-                        <h3 class="training-title">Market Expansion - TechGrow Inc.</h3>
-                        <p>Strategic planning for APAC market entry and expansion.</p>
-                        <div class="training-progress">
-                            <div>Progress: 25%</div>
-                            <div class="progress-bar">
-                                <div class="progress-value" style="width: 25%;"></div>
-                            </div>
-                        </div>
-                        <div style="margin-top: 15px;">
-                            <strong>Deadline:</strong> January 20, 2024
-                        </div>
-                        <div style="margin-top: 10px;">
-                            <strong>Project Manager:</strong> Jennifer Lee
-                        </div>
-                    </div>
+                    
+                    <!-- ALL YOUR EXISTING PORTAL SECTIONS GO HERE -->
+                    <!-- Make sure to include all your existing HTML content -->
+                    
                 </div>
-
-                <h3 style="margin: 30px 0 20px; color: var(--acentrik-blue);">Upcoming Tasks</h3>
-
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Task</th>
-                            <th>Project</th>
-                            <th>Due Date</th>
-                            <th>Priority</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Finalize AWS architecture design</td>
-                            <td>Cloud Migration - FinCorp Bank</td>
-                            <td>June 25, 2023</td>
-                            <td>High</td>
-                            <td class="status-pending">In Progress</td>
-                        </tr>
-                        <tr>
-                            <td>Prepare client presentation</td>
-                            <td>Market Expansion - TechGrow Inc.</td>
-                            <td>June 28, 2023</td>
-                            <td>Medium</td>
-                            <td class="status-pending">Pending</td>
-                        </tr>
-                        <tr>
-                            <td>Review SAP modules</td>
-                            <td>ERP Implementation - RetailMax</td>
-                            <td>June 20, 2023</td>
-                            <td>High</td>
-                            <td class="status-approved">Completed</td>
-                        </tr>
-                        <tr>
-                            <td>Team coordination meeting</td>
-                            <td>Cloud Migration - FinCorp Bank</td>
-                            <td>June 22, 2023</td>
-                            <td>Medium</td>
-                            <td class="status-pending">Scheduled</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Training Content -->
-            <div id="training" class="content-section">
-                <div class="section-header">
-                    <h2>Training & Development</h2>
-                    <button class="btn">Browse All Courses</button>
-                </div>
-
-                <h3 style="margin-bottom: 20px; color: var(--acentrik-blue);">Recommended for You</h3>
-
-                <div class="training-cards">
-                    <div class="training-card">
-                        <div class="training-category">Cloud Computing</div>
-                        <h3 class="training-title">AWS Advanced Architecture</h3>
-                        <p>Advanced concepts in AWS cloud architecture and best practices.</p>
-                        <div class="training-progress">
-                            <div>Your Progress: 30%</div>
-                            <div class="progress-bar">
-                                <div class="progress-value" style="width: 30%;"></div>
-                            </div>
-                        </div>
-                        <button class="btn" style="margin-top: 15px; width: 100%;">Continue Learning</button>
-                    </div>
-
-                    <div class="training-card">
-                        <div class="training-category">Leadership</div>
-                        <h3 class="training-title">Strategic Management</h3>
-                        <p>Developing strategic thinking and decision-making skills.</p>
-                        <div class="training-progress">
-                            <div>Your Progress: 0%</div>
-                            <div class="progress-bar">
-                                <div class="progress-value" style="width: 0%;"></div>
-                            </div>
-                        </div>
-                        <button class="btn" style="margin-top: 15px; width: 100%;">Start Course</button>
-                    </div>
-
-                    <div class="training-card">
-                        <div class="training-category">Technology</div>
-                        <h3 class="training-title">DevOps & CI/CD Pipelines</h3>
-                        <p>Modern DevOps practices and continuous integration/deployment.</p>
-                        <div class="training-progress">
-                            <div>Your Progress: 75%</div>
-                            <div class="progress-bar">
-                                <div class="progress-value" style="width: 75%;"></div>
-                            </div>
-                        </div>
-                        <button class="btn" style="margin-top: 15px; width: 100%;">Continue Learning</button>
-                    </div>
-                </div>
-
-                <h3 style="margin: 30px 0 20px; color: var(--acentrik-blue);">My Certifications</h3>
-
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Certification</th>
-                            <th>Issuing Authority</th>
-                            <th>Date Earned</th>
-                            <th>Valid Until</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>AWS Solutions Architect</td>
-                            <td>Amazon Web Services</td>
-                            <td>March 15, 2022</td>
-                            <td>March 15, 2025</td>
-                            <td><button class="btn" style="padding: 5px 10px; font-size: 0.8rem;">View</button></td>
-                        </tr>
-                        <tr>
-                            <td>Project Management Professional</td>
-                            <td>Project Management Institute</td>
-                            <td>August 10, 2021</td>
-                            <td>August 10, 2024</td>
-                            <td><button class="btn" style="padding: 5px 10px; font-size: 0.8rem;">View</button></td>
-                        </tr>
-                        <tr>
-                            <td>Scrum Master Certification</td>
-                            <td>Scrum Alliance</td>
-                            <td>November 5, 2020</td>
-                            <td>November 5, 2023</td>
-                            <td><button class="btn" style="padding: 5px 10px; font-size: 0.8rem;">Renew</button></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Documents Content -->
-            <div id="documents" class="content-section">
-                <div class="section-header">
-                    <h2>Documents</h2>
-                    <button class="btn">Upload Document</button>
-                </div>
-
-                <h3 style="margin-bottom: 20px; color: var(--acentrik-blue);">Company Documents</h3>
-
-                <div class="quick-links">
-                    <div class="quick-link">
-                        <div class="quick-link-icon">
-                            <i class="fas fa-book"></i>
-                        </div>
-                        <h4>Employee Handbook</h4>
-                        <p>Updated: Jan 2023</p>
-                        <button class="btn" style="margin-top: 10px; padding: 8px 15px;">Download</button>
-                    </div>
-
-                    <div class="quick-link">
-                        <div class="quick-link-icon">
-                            <i class="fas fa-shield-alt"></i>
-                        </div>
-                        <h4>Policies & Procedures</h4>
-                        <p>HR and operational policies</p>
-                        <button class="btn" style="margin-top: 10px; padding: 8px 15px;">View</button>
-                    </div>
-
-                    <div class="quick-link">
-                        <div class="quick-link-icon">
-                            <i class="fas fa-file-contract"></i>
-                        </div>
-                        <h4>Code of Conduct</h4>
-                        <p>Company ethics and guidelines</p>
-                        <button class="btn" style="margin-top: 10px; padding: 8px 15px;">Download</button>
-                    </div>
-
-                    <div class="quick-link">
-                        <div class="quick-link-icon">
-                            <i class="fas fa-first-aid"></i>
-                        </div>
-                        <h4>Health & Safety</h4>
-                        <p>Workplace safety guidelines</p>
-                        <button class="btn" style="margin-top: 10px; padding: 8px 15px;">View</button>
-                    </div>
-                </div>
-
-                <h3 style="margin: 30px 0 20px; color: var(--acentrik-blue);">My Documents</h3>
-
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Document Name</th>
-                            <th>Type</th>
-                            <th>Date Uploaded</th>
-                            <th>Size</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Employment_Contract.pdf</td>
-                            <td>Contract</td>
-                            <td>March 10, 2020</td>
-                            <td>2.4 MB</td>
-                            <td><button class="btn" style="padding: 5px 10px; font-size: 0.8rem;">Download</button></td>
-                        </tr>
-                        <tr>
-                            <td>Payslip_June_2023.pdf</td>
-                            <td>Payslip</td>
-                            <td>June 5, 2023</td>
-                            <td>1.1 MB</td>
-                            <td><button class="btn" style="padding: 5px 10px; font-size: 0.8rem;">Download</button></td>
-                        </tr>
-                        <tr>
-                            <td>Performance_Review_Q1_2023.pdf</td>
-                            <td>Review</td>
-                            <td>April 15, 2023</td>
-                            <td>1.8 MB</td>
-                            <td><button class="btn" style="padding: 5px 10px; font-size: 0.8rem;">View</button></td>
-                        </tr>
-                        <tr>
-                            <td>Tax_Declaration_2023.pdf</td>
-                            <td>Tax</td>
-                            <td>January 20, 2023</td>
-                            <td>850 KB</td>
-                            <td><button class="btn" style="padding: 5px 10px; font-size: 0.8rem;">Download</button></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Directory Content -->
-            <div id="directory" class="content-section">
-                <div class="section-header">
-                    <h2>Employee Directory</h2>
-                    <div class="search-bar">
-                        <i class="fas fa-search search-icon"></i>
-                        <input type="text" placeholder="Search employees...">
-                    </div>
-                </div>
-
-                <div class="quick-links">
-                    <div class="quick-link">
-                        <div class="employee-avatar" style="width: 60px; height: 60px; font-size: 1.5rem;">
-                            <i class="fas fa-user"></i>
-                        </div>
-                        <h4>Sarah Williams</h4>
-                        <p>Director - Technology Consulting</p>
-                        <div style="margin-top: 10px; color: var(--acentrik-blue);">sarah.williams@acentrik.com</div>
-                    </div>
-
-                    <div class="quick-link">
-                        <div class="employee-avatar" style="width: 60px; height: 60px; font-size: 1.5rem;">
-                            <i class="fas fa-user"></i>
-                        </div>
-                        <h4>Robert Chen</h4>
-                        <p>HR Director</p>
-                        <div style="margin-top: 10px; color: var(--acentrik-blue);">robert.chen@acentrik.com</div>
-                    </div>
-
-                    <div class="quick-link">
-                        <div class="employee-avatar" style="width: 60px; height: 60px; font-size: 1.5rem;">
-                            <i class="fas fa-user"></i>
-                        </div>
-                        <h4>Michael Rodriguez</h4>
-                        <p>Senior Project Manager</p>
-                        <div style="margin-top: 10px; color: var(--acentrik-blue);">michael.rodriguez@acentrik.com</div>
-                    </div>
-
-                    <div class="quick-link">
-                        <div class="employee-avatar" style="width: 60px; height: 60px; font-size: 1.5rem;">
-                            <i class="fas fa-user"></i>
-                        </div>
-                        <h4>Jennifer Lee</h4>
-                        <p>Strategy Lead</p>
-                        <div style="margin-top: 10px; color: var(--acentrik-blue);">jennifer.lee@acentrik.com</div>
-                    </div>
-                </div>
-
-                <h3 style="margin: 30px 0 20px; color: var(--acentrik-blue);">My Team (Technology Consulting)</h3>
-
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Position</th>
-                            <th>Email</th>
-                            <th>Phone Extension</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Priya Sharma</td>
-                            <td>Consultant</td>
-                            <td>priya.sharma@acentrik.com</td>
-                            <td>4201</td>
-                            <td><button class="btn" style="padding: 5px 10px; font-size: 0.8rem;">Message</button></td>
-                        </tr>
-                        <tr>
-                            <td>David Kim</td>
-                            <td>Senior Consultant</td>
-                            <td>david.kim@acentrik.com</td>
-                            <td>4203</td>
-                            <td><button class="btn" style="padding: 5px 10px; font-size: 0.8rem;">Message</button></td>
-                        </tr>
-                        <tr>
-                            <td>Ananya Patel</td>
-                            <td>Consultant</td>
-                            <td>ananya.patel@acentrik.com</td>
-                            <td>4205</td>
-                            <td><button class="btn" style="padding: 5px 10px; font-size: 0.8rem;">Message</button></td>
-                        </tr>
-                        <tr>
-                            <td>James Wilson</td>
-                            <td>Junior Consultant</td>
-                            <td>james.wilson@acentrik.com</td>
-                            <td>4207</td>
-                            <td><button class="btn" style="padding: 5px 10px; font-size: 0.8rem;">Message</button></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- News Content -->
-            <div id="news" class="content-section">
-                <div class="section-header">
-                    <h2>Company News & Announcements</h2>
-                </div>
-
-                <div class="news-grid">
-                    <div class="news-card">
-                        <div class="news-image">
-                            <i class="fas fa-users"></i>
-                        </div>
-                        <div class="news-content">
-                            <div class="news-date">June 15, 2023</div>
-                            <h3 class="news-title">Annual Company Meet 2023</h3>
-                            <p>Join us for our annual company meet on July 20th at the Grand Convention Center. This year's theme is "Innovation & Collaboration".</p>
-                        </div>
-                    </div>
-
-                    <div class="news-card">
-                        <div class="news-image">
-                            <i class="fas fa-heartbeat"></i>
-                        </div>
-                        <div class="news-content">
-                            <div class="news-date">June 10, 2023</div>
-                            <h3 class="news-title">Enhanced Health Benefits</h3>
-                            <p>We're excited to announce enhanced health insurance coverage including dental and vision care for all employees and their families.</p>
-                        </div>
-                    </div>
-
-                    <div class="news-card">
-                        <div class="news-image">
-                            <i class="fas fa-trophy"></i>
-                        </div>
-                        <div class="news-content">
-                            <div class="news-date">June 5, 2023</div>
-                            <h3 class="news-title">Acentrik Wins Industry Award</h3>
-                            <p>We're proud to announce that Acentrik has been awarded "Best Consultancy Firm 2023" by the Global Business Association.</p>
-                        </div>
-                    </div>
-
-                    <div class="news-card">
-                        <div class="news-image">
-                            <i class="fas fa-chart-line"></i>
-                        </div>
-                        <div class="news-content">
-                            <div class="news-date">May 28, 2023</div>
-                            <h3 class="news-title">Record Quarterly Growth</h3>
-                            <p>Acentrik reports 35% growth in Q1 2023, with expansion into new markets and client acquisition across sectors.</p>
-                        </div>
-                    </div>
-
-                    <div class="news-card">
-                        <div class="news-image">
-                            <i class="fas fa-graduation-cap"></i>
-                        </div>
-                        <div class="news-content">
-                            <div class="news-date">May 20, 2023</div>
-                            <h3 class="news-title">New Learning Platform Launch</h3>
-                            <p>Our new learning management system is now live with over 500 courses available to all employees.</p>
-                        </div>
-                    </div>
-
-                    <div class="news-card">
-                        <div class="news-image">
-                            <i class="fas fa-hands-helping"></i>
-                        </div>
-                        <div class="news-content">
-                            <div class="news-date">May 15, 2023</div>
-                            <h3 class="news-title">CSR Initiative: Education for All</h3>
-                            <p>Acentrik launches new CSR initiative focusing on digital education for underprivileged children across India.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Footer -->
-            <div class="footer">
-                <p>Acentrik Consultancy Services Pvt. Ltd. | Employee Portal v2.1</p>
-                <p>© 2023 Acentrik Consultancy Services. All rights reserved. | Confidential & Proprietary</p>
-                <p style="margin-top: 10px; font-size: 0.8rem;">
-                    <a href="#" style="color: var(--acentrik-blue); margin: 0 10px;">Privacy Policy</a> |
-                    <a href="#" style="color: var(--acentrik-blue); margin: 0 10px;">Terms of Use</a> |
-                    <a href="#" style="color: var(--acentrik-blue); margin: 0 10px;">Help Desk</a> |
-                    <a href="#" style="color: var(--acentrik-blue); margin: 0 10px;">Contact IT Support</a>
-                </p>
             </div>
         </div>
     </div>
 
+    <!-- Firebase Configuration and Authentication Script -->
     <script>
-        // Navigation functionality
-        document.addEventListener('DOMContentLoaded', function() {
+        // Firebase Configuration - REPLACE WITH YOUR ACTUAL CONFIG
+        const firebaseConfig = {
+            apiKey: "AIzaSyYOUR_API_KEY_HERE",
+            authDomain: "acentrik-portal.firebaseapp.com",
+            projectId: "acentrik-portal",
+            storageBucket: "acentrik-portal.appspot.com",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "1:YOUR_APP_ID:web:YOUR_APP_ID"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // Demo User Credentials (In production, use Firebase Authentication users)
+        const demoUsers = {
+            admin: {
+                email: "admin@acentrik.com",
+                password: "Admin@123",
+                name: "Sarah Williams",
+                role: "Administrator",
+                employeeId: "EMP-ACS-2021-001",
+                department: "Administration",
+                avatar: "SW",
+                permissions: ["admin", "hr", "employee"]
+            },
+            employee: {
+                email: "alex.johnson@acentrik.com",
+                password: "Employee@123",
+                name: "Alex Johnson",
+                role: "Senior Consultant",
+                employeeId: "EMP-ACS-2023-087",
+                department: "Technology Consulting",
+                avatar: "AJ",
+                permissions: ["employee"]
+            },
+            hr: {
+                email: "hr@acentrik.com",
+                password: "HR@123",
+                name: "Robert Chen",
+                role: "HR Director",
+                employeeId: "EMP-ACS-2020-005",
+                department: "Human Resources",
+                avatar: "RC",
+                permissions: ["hr", "employee"]
+            }
+        };
+
+        // DOM Elements
+        const loginPage = document.getElementById('loginPage');
+        const portalContainer = document.getElementById('portalContainer');
+        const loginForm = document.getElementById('loginForm');
+        const loginEmail = document.getElementById('loginEmail');
+        const loginPassword = document.getElementById('loginPassword');
+        const loginButton = document.getElementById('loginButton');
+        const loginSpinner = document.getElementById('loginSpinner');
+        const loginAlert = document.getElementById('loginAlert');
+        const successAlert = document.getElementById('successAlert');
+        const forgotPasswordLink = document.getElementById('forgotPasswordLink');
+        const resetModal = document.getElementById('resetModal');
+        const closeModal = document.getElementById('closeModal');
+        const resetForm = document.getElementById('resetForm');
+        const resetEmail = document.getElementById('resetEmail');
+        const resetButton = document.getElementById('resetButton');
+        const resetAlert = document.getElementById('resetAlert');
+        const portalLogoutBtn = document.getElementById('portalLogoutBtn');
+        const sidebarLogoutBtn = document.getElementById('sidebarLogoutBtn');
+        const demoAdminBtn = document.getElementById('demoAdminBtn');
+        const demoEmployeeBtn = document.getElementById('demoEmployeeBtn');
+        const demoHRBtn = document.getElementById('demoHRBtn');
+
+        // User info elements
+        const userName = document.getElementById('userName');
+        const userRole = document.getElementById('userRole');
+        const userAvatar = document.getElementById('userAvatar');
+        const sidebarName = document.getElementById('sidebarName');
+        const sidebarRole = document.getElementById('sidebarRole');
+        const sidebarId = document.getElementById('sidebarId');
+        const sidebarAvatar = document.getElementById('sidebarAvatar');
+        const welcomeName = document.getElementById('welcomeName');
+        const welcomeMessage = document.getElementById('welcomeMessage');
+        const personalizedWelcome = document.getElementById('personalizedWelcome');
+
+        // Current user data
+        let currentUser = null;
+
+        // Check authentication state
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                // User is signed in
+                console.log('User is signed in:', user.email);
+                // Try to get user data from Firestore
+                getUserData(user.uid);
+            } else {
+                // User is signed out
+                console.log('User is signed out');
+                showLoginPage();
+            }
+        });
+
+        // Login Form Submission
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = loginEmail.value.trim();
+            const password = loginPassword.value;
+            
+            // Validate inputs
+            if (!email || !password) {
+                showAlert(loginAlert, 'Please enter both email and password', 'error');
+                return;
+            }
+            
+            // Validate email domain (optional)
+            if (!email.endsWith('@acentrik.com') && !email.endsWith('@acentrikconsultancy.com')) {
+                if (!confirm('This email is not from Acentrik domain. Continue anyway?')) {
+                    return;
+                }
+            }
+            
+            // Show loading state
+            showLoading(true);
+            
+            try {
+                // Try Firebase authentication first
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                console.log('Login successful:', userCredential.user.email);
+                
+                // Get additional user data from Firestore
+                await getUserData(userCredential.user.uid);
+                
+            } catch (error) {
+                console.error('Firebase login error:', error);
+                
+                // Fallback to demo users for testing
+                const demoUser = Object.values(demoUsers).find(user => user.email === email);
+                
+                if (demoUser && demoUser.password === password) {
+                    // Demo user authentication
+                    console.log('Demo user login successful:', demoUser.name);
+                    currentUser = demoUser;
+                    showPortalPage();
+                } else {
+                    // Authentication failed
+                    let errorMessage = 'Invalid email or password';
+                    
+                    switch (error.code) {
+                        case 'auth/user-not-found':
+                            errorMessage = 'No account found with this email';
+                            break;
+                        case 'auth/wrong-password':
+                            errorMessage = 'Incorrect password';
+                            break;
+                        case 'auth/invalid-email':
+                            errorMessage = 'Invalid email address';
+                            break;
+                        case 'auth/too-many-requests':
+                            errorMessage = 'Too many failed attempts. Please try again later';
+                            break;
+                    }
+                    
+                    showAlert(loginAlert, errorMessage, 'error');
+                }
+            } finally {
+                showLoading(false);
+            }
+        });
+
+        // Demo Login Buttons
+        demoAdminBtn.addEventListener('click', () => {
+            loginEmail.value = demoUsers.admin.email;
+            loginPassword.value = demoUsers.admin.password;
+            loginForm.dispatchEvent(new Event('submit'));
+        });
+
+        demoEmployeeBtn.addEventListener('click', () => {
+            loginEmail.value = demoUsers.employee.email;
+            loginPassword.value = demoUsers.employee.password;
+            loginForm.dispatchEvent(new Event('submit'));
+        });
+
+        demoHRBtn.addEventListener('click', () => {
+            loginEmail.value = demoUsers.hr.email;
+            loginPassword.value = demoUsers.hr.password;
+            loginForm.dispatchEvent(new Event('submit'));
+        });
+
+        // Forgot Password
+        forgotPasswordLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            resetModal.style.display = 'flex';
+            resetEmail.value = loginEmail.value || '';
+        });
+
+        closeModal.addEventListener('click', () => {
+            resetModal.style.display = 'none';
+            resetAlert.style.display = 'none';
+        });
+
+        resetForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = resetEmail.value.trim();
+            
+            if (!email) {
+                showAlert(resetAlert, 'Please enter your email address', 'error');
+                return;
+            }
+            
+            try {
+                await auth.sendPasswordResetEmail(email);
+                showAlert(resetAlert, 'Password reset email sent! Check your inbox.', 'success');
+                setTimeout(() => {
+                    resetModal.style.display = 'none';
+                    resetAlert.style.display = 'none';
+                }, 3000);
+            } catch (error) {
+                console.error('Password reset error:', error);
+                showAlert(resetAlert, 'Error sending reset email. Please try again.', 'error');
+            }
+        });
+
+        // Logout
+        function setupLogoutButtons() {
+            const logoutButtons = [portalLogoutBtn, sidebarLogoutBtn];
+            
+            logoutButtons.forEach(button => {
+                if (button) {
+                    button.addEventListener('click', async () => {
+                        if (confirm('Are you sure you want to logout?')) {
+                            try {
+                                await auth.signOut();
+                                showLoginPage();
+                                showAlert(successAlert, 'You have been logged out successfully', 'success');
+                                setTimeout(() => {
+                                    successAlert.style.display = 'none';
+                                }, 3000);
+                            } catch (error) {
+                                console.error('Logout error:', error);
+                            }
+                        }
+                    });
+                }
+            });
+        }
+
+        // Get user data from Firestore
+        async function getUserData(userId) {
+            try {
+                const userDoc = await db.collection('users').doc(userId).get();
+                
+                if (userDoc.exists) {
+                    // User data exists in Firestore
+                    const userData = userDoc.data();
+                    currentUser = {
+                        uid: userId,
+                        email: userData.email,
+                        name: userData.name,
+                        role: userData.role,
+                        employeeId: userData.employeeId,
+                        department: userData.department,
+                        avatar: userData.avatar || getInitials(userData.name),
+                        permissions: userData.permissions || ['employee']
+                    };
+                    showPortalPage();
+                } else {
+                    // User doesn't exist in Firestore, use demo data based on email
+                    const user = auth.currentUser;
+                    const demoUser = Object.values(demoUsers).find(u => u.email === user.email);
+                    
+                    if (demoUser) {
+                        currentUser = demoUser;
+                        showPortalPage();
+                        
+                        // Create user in Firestore if not exists
+                        await db.collection('users').doc(userId).set({
+                            email: demoUser.email,
+                            name: demoUser.name,
+                            role: demoUser.role,
+                            employeeId: demoUser.employeeId,
+                            department: demoUser.department,
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                            lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                    } else {
+                        // No matching user found
+                        await auth.signOut();
+                        showAlert(loginAlert, 'User account not found', 'error');
+                    }
+                }
+            } catch (error) {
+                console.error('Error getting user data:', error);
+                // Fallback to demo user if Firestore fails
+                const user = auth.currentUser;
+                const demoUser = Object.values(demoUsers).find(u => u.email === user.email);
+                if (demoUser) {
+                    currentUser = demoUser;
+                    showPortalPage();
+                }
+            }
+        }
+
+        // Show portal page
+        function showPortalPage() {
+            if (!currentUser) return;
+            
+            // Update UI with user data
+            updateUserUI();
+            
+            // Show/hide admin features based on permissions
+            toggleAdminFeatures();
+            
+            // Switch to portal view
+            loginPage.style.display = 'none';
+            portalContainer.style.display = 'block';
+            
+            // Setup logout buttons
+            setupLogoutButtons();
+            
+            // Initialize portal navigation
+            initializePortalNavigation();
+            
+            // Show welcome message
+            showAlert(successAlert, `Welcome back, ${currentUser.name}!`, 'success');
+            setTimeout(() => {
+                successAlert.style.display = 'none';
+            }, 3000);
+        }
+
+        // Show login page
+        function showLoginPage() {
+            loginPage.style.display = 'flex';
+            portalContainer.style.display = 'none';
+            currentUser = null;
+            loginForm.reset();
+        }
+
+        // Update user information in UI
+        function updateUserUI() {
+            if (!currentUser) return;
+            
+            // Update user info in header
+            userName.textContent = currentUser.name;
+            userRole.textContent = currentUser.role;
+            userAvatar.textContent = currentUser.avatar;
+            
+            // Update sidebar info
+            sidebarName.textContent = currentUser.name;
+            sidebarRole.textContent = currentUser.role;
+            sidebarId.textContent = currentUser.employeeId;
+            sidebarAvatar.innerHTML = `<i class="fas fa-user"></i>`;
+            
+            // Update welcome messages
+            welcomeName.textContent = currentUser.name.split(' ')[0];
+            welcomeMessage.textContent = `Welcome to Acentrik Consultancy Services Employee Portal - ${currentUser.department}`;
+            
+            // Update personalized welcome
+            const welcomeBanner = personalizedWelcome.querySelector('h2');
+            welcomeBanner.innerHTML = `Welcome back, <span id="welcomeName">${currentUser.name.split(' ')[0]}</span>!`;
+            
+            // Update avatar color based on role
+            updateAvatarColor();
+        }
+
+        // Toggle admin features based on permissions
+        function toggleAdminFeatures() {
+            const adminItems = document.querySelectorAll('.admin-only');
+            const isAdmin = currentUser.permissions.includes('admin');
+            const isHR = currentUser.permissions.includes('hr');
+            
+            adminItems.forEach(item => {
+                if (isAdmin || isHR) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+            
+            // Update dashboard stats based on role
+            updateDashboardStats();
+        }
+
+        // Update dashboard statistics based on user role
+        function updateDashboardStats() {
+            if (!currentUser) return;
+            
+            const leaveBalance = document.getElementById('leaveBalance');
+            
+            // Different leave balances for different roles
+            const leaveBalances = {
+                'admin': 20,
+                'hr': 18,
+                'employee': 12
+            };
+            
+            let balance = 12; // Default
+            
+            if (currentUser.permissions.includes('admin')) {
+                balance = leaveBalances.admin;
+            } else if (currentUser.permissions.includes('hr')) {
+                balance = leaveBalances.hr;
+            } else {
+                balance = leaveBalances.employee;
+            }
+            
+            if (leaveBalance) {
+                leaveBalance.textContent = balance;
+            }
+        }
+
+        // Update avatar color based on role
+        function updateAvatarColor() {
+            const avatarElements = [userAvatar];
+            
+            let color = '#d4af37'; // Default gold
+            
+            if (currentUser.permissions.includes('admin')) {
+                color = '#e74c3c'; // Red for admin
+            } else if (currentUser.permissions.includes('hr')) {
+                color = '#3498db'; // Blue for HR
+            } else {
+                color = '#2ecc71'; // Green for employees
+            }
+            
+            avatarElements.forEach(avatar => {
+                if (avatar) {
+                    avatar.style.backgroundColor = color;
+                }
+            });
+        }
+
+        // Get initials from name
+        function getInitials(name) {
+            return name.split(' ').map(word => word[0]).join('').toUpperCase();
+        }
+
+        // Show loading state
+        function showLoading(isLoading) {
+            if (isLoading) {
+                loginButton.classList.add('btn-loading');
+                loginButton.disabled = true;
+                loginSpinner.style.display = 'block';
+            } else {
+                loginButton.classList.remove('btn-loading');
+                loginButton.disabled = false;
+                loginSpinner.style.display = 'none';
+            }
+        }
+
+        // Show alert message
+        function showAlert(alertElement, message, type) {
+            alertElement.textContent = message;
+            alertElement.className = `alert alert-${type}`;
+            alertElement.style.display = 'block';
+            
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                alertElement.style.display = 'none';
+            }, 5000);
+        }
+
+        // Initialize portal navigation (from your existing code)
+        function initializePortalNavigation() {
+            // Your existing navigation code here
+            // Copy all your existing JavaScript for portal navigation
+            
             // Menu items click handler
             const menuItems = document.querySelectorAll('.menu-item');
             const contentSections = document.querySelectorAll('.content-section, .dashboard-content');
             const pageTitle = document.getElementById('pageTitle');
             const quickLinks = document.querySelectorAll('.quick-link');
-
+            
             // Menu titles mapping
             const menuTitles = {
                 'dashboard': 'Employee Dashboard',
@@ -1754,44 +1098,45 @@
                 'training': 'Training & Development',
                 'documents': 'Documents',
                 'directory': 'Employee Directory',
-                'news': 'Company News & Announcements'
+                'news': 'Company News & Announcements',
+                'admin': 'Admin Panel'
             };
-
+            
             // Function to switch content sections
             function switchContent(targetId) {
                 // Hide all content sections
                 contentSections.forEach(section => {
                     section.classList.remove('active');
                 });
-
+                
                 // Remove active class from all menu items
                 menuItems.forEach(item => {
                     item.classList.remove('active');
                 });
-
+                
                 // Show target content section
                 const targetSection = document.getElementById(targetId);
                 if (targetSection) {
                     targetSection.classList.add('active');
                 }
-
+                
                 // Update page title
                 if (menuTitles[targetId]) {
                     pageTitle.textContent = menuTitles[targetId];
                 }
-
+                
                 // Add active class to clicked menu item
                 const activeMenuItem = document.querySelector(`.menu-item[data-target="${targetId}"]`);
                 if (activeMenuItem) {
                     activeMenuItem.classList.add('active');
                 }
-
+                
                 // Close sidebar on mobile after selection
                 if (window.innerWidth <= 768) {
                     document.getElementById('sidebar').classList.remove('active');
                 }
             }
-
+            
             // Add click event to menu items
             menuItems.forEach(item => {
                 item.addEventListener('click', function() {
@@ -1799,58 +1144,29 @@
                     switchContent(targetId);
                 });
             });
-
-            // Add click event to quick links
-            quickLinks.forEach(link => {
-                link.addEventListener('click', function() {
-                    const targetId = this.getAttribute('data-target');
-                    if (targetId) {
-                        switchContent(targetId);
-                    }
-                });
-            });
-
-            // Logout button functionality
-            document.getElementById('logoutBtn').addEventListener('click', function() {
-                if (confirm('Are you sure you want to logout?')) {
-                    alert('You have been logged out successfully.');
-                    // In a real application, this would redirect to login page
-                    // window.location.href = '/login';
-                }
-            });
-
-            // Edit profile button functionality
-            document.getElementById('editProfileBtn').addEventListener('click', function() {
-                alert('Edit profile functionality would open here. In a real application, this would open a form to edit profile details.');
-            });
-
-            // Apply leave button functionality
-            document.getElementById('applyLeaveBtn').addEventListener('click', function() {
-                alert('Leave application form would open here. In a real application, this would open a form to apply for leave.');
-            });
-
+            
+            // Initialize with dashboard
+            switchContent('dashboard');
+            
             // Mobile menu toggle
             document.getElementById('menuToggle').addEventListener('click', function() {
                 document.getElementById('sidebar').classList.toggle('active');
             });
+        }
 
-            // Notification icon click
-            document.querySelector('.notifications').addEventListener('click', function() {
-                alert('You have 3 new notifications:\n1. Project deadline reminder\n2. Training session tomorrow\n3. New company announcement');
-            });
-
-            // Search functionality
-            const searchInput = document.querySelector('.search-bar input');
-            searchInput.addEventListener('keyup', function(e) {
-                if (e.key === 'Enter') {
-                    alert(`Searching for: "${this.value}"\nIn a real application, this would search the employee portal.`);
-                    this.value = '';
-                }
-            });
-
-            // Initialize with dashboard
-            switchContent('dashboard');
+        // Check if user is already logged in on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            // For demo purposes, auto-login with employee account
+            // Remove this in production
+            if (window.location.search.includes('demo=true')) {
+                loginEmail.value = demoUsers.employee.email;
+                loginPassword.value = demoUsers.employee.password;
+                loginForm.dispatchEvent(new Event('submit'));
+            }
         });
     </script>
+
+    <!-- Your existing portal JavaScript here -->
+    <!-- Make sure to include all your existing JavaScript functionality -->
 </body>
 </html>
